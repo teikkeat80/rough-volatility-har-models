@@ -1,8 +1,8 @@
+from time import time
 from data_processing import load_rv
 from analysis import run_analysis
 from models.misc import Mse
 from visualisation import plot_forecast
-from time import time
 
 def main():
 

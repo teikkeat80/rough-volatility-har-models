@@ -1,5 +1,5 @@
-from models.hurst import Hurst
 from matplotlib import pyplot as plt
+from models.hurst import Hurst
 
 def plot_scaling_diagram(h_instance: Hurst):
     h_instance.plot_scale_m_delta()
