@@ -9,7 +9,8 @@ class RoughVolatility:
         self.nu = nu
 
     def _back_transform(self, fc, delta=1):
-        return math.exp(fc + (2 * (self.nu ** 2) * (math.gamma(1.5 - self.h) / (math.gamma(self.h + 0.5) * math.gamma(2 - 2 * self.h))) * (delta ** (2 * self.h))))
+        c = math.gamma(1.5 - self.h) / (math.gamma(self.h + 0.5) * math.gamma(2 - 2 * self.h))
+        return math.exp(fc + (2 * (self.nu ** 2) * c * (delta ** (2 * self.h))))
     
     def forecast(self, delta=1, back_transform : bool = False):
         summation = 0      

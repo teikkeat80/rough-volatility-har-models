@@ -17,14 +17,15 @@ def run_analysis(rv):
     # Hurst Estimation
     print('Estimating Hurst Value.............')
     q_list = [0.5, 1, 1.5, 2, 3]
-    max_delta = 30
+    max_delta = 10
     h = Hurst(rv, q_list, max_delta, 'overlap')
     h_est = h.est_h()
     nu_est = h.est_nu()
+    print(f'H: {h_est}')
 
     # Plot scaling diagrams
     print('Generating Scaling Diagrams.............')
-    vis.plot_scaling_diagram(h)
+    # vis.plot_scaling_diagram(h)
 
     # Rough Volatility Forecasts
     print('Training Data - Generate Rough Volatility Forecasts.............')
