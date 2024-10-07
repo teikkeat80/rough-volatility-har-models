@@ -20,6 +20,7 @@ def run_analysis(rv):
     max_delta = 30
     h = Hurst(rv, q_list, max_delta, 'overlap')
     h_est = h.est_h()
+    nu_est = h.est_nu()
 
     # Plot scaling diagrams
     print('Generating Scaling Diagrams.............')
@@ -27,10 +28,10 @@ def run_analysis(rv):
 
     # Rough Volatility Forecasts
     print('Training Data - Generate Rough Volatility Forecasts.............')
-    roughvol = RoughVolatility(rv=rv, h=h_est, err=E)
-    roughvol_fc_d = roughvol.moving_window_forecast(train_size=N, k=1)
-    roughvol_fc_w = roughvol.moving_window_forecast(train_size=N, k=5)
-    roughvol_fc_m = roughvol.moving_window_forecast(train_size=N, k=22)
+    roughvol = RoughVolatility(rv=rv, h=h_est, err=E, nu=nu_est)
+    roughvol_fc_d = roughvol.moving_window_forecast(train_size=N, k=1, back_transform=True)
+    roughvol_fc_w = roughvol.moving_window_forecast(train_size=N, k=5, back_transform=True)
+    roughvol_fc_m = roughvol.moving_window_forecast(train_size=N, k=22, back_transform=True)
 
     # Generate Har Variables
     print('Generating Har Variables.............')
@@ -47,9 +48,9 @@ def run_analysis(rv):
         'har_x_d' : har_x_d,
         'har_x_w' : har_x_w,
         'har_x_m' : har_x_m,
-        'roughvol_fc_d' : roughvol_fc_d,
-        'roughvol_fc_w' : roughvol_fc_w,
-        'roughvol_fc_m' : roughvol_fc_m
+        'roughvol_fc_d' : np.log(roughvol_fc_d),
+        'roughvol_fc_w' : np.log(roughvol_fc_w),
+        'roughvol_fc_m' : np.log(roughvol_fc_m)
     })
 
     # Fit and Predict

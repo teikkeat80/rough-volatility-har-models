@@ -1,4 +1,5 @@
 import numpy as np
+import math
 from matplotlib import pyplot as plt
 
 class Hurst:
@@ -65,6 +66,10 @@ class Hurst:
         h, _ = self._scale_zeta_q()
         return h
     
+    def est_nu(self, order=2):
+        _, k = self._calc_zeta()
+        return math.sqrt(math.exp(k[self.q_list.index(order)]))
+
     def plot_scale_m_delta(self):
         zeta_list, k_list = self._calc_zeta()
 
