@@ -17,7 +17,20 @@ class RoughVolatility:
         for i in range(len(self.log_rv)):
             numerator = self.log_rv[len(self.log_rv) - i - 1]
             denominator = (i + self.err + delta) * ((i + self.err) ** (self.h + 0.5))
-            summation += numerator / denominator    
+            summation += numerator / denominator
+        fc = (math.cos(self.h * math.pi) / math.pi) * (delta ** (self.h + 0.5)) * summation
+        if back_transform:
+            output = self._back_transform(fc=fc, delta=delta)
+        else:
+            output = fc
+        return output
+    
+    def forecast_nr(self, delta=1, back_transform : bool = False):
+        summation = 0      
+        for i in range(len(self.log_rv)):
+            numerator = delta * self.log_rv[len(self.log_rv) - i - 1] - (i + self.err + delta) * self.log_rv[len(self.log_rv) - 1]
+            denominator = (i + self.err + delta) * ((i + self.err) ** (self.h + 0.5))
+            summation += numerator / denominator
         fc = (math.cos(self.h * math.pi) / math.pi) * (delta ** (self.h + 0.5)) * summation
         if back_transform:
             output = self._back_transform(fc=fc, delta=delta)
@@ -44,7 +57,10 @@ class RoughVolatility:
         while end < len(self.log_rv):
             self.log_rv = self.log_rv[beg:end]
             if k is None:
-                r = self.forecast(delta=delta, back_transform=back_transform)
+                if self.h < 0.5:
+                    r = self.forecast(delta=delta, back_transform=back_transform)
+                else:
+                    r = self.forecast_nr(delta=delta, back_transform=back_transform)
             else:
                 r = self.backwards_average_forecast(delta=delta, k=k, back_transform=back_transform)
             output.append(r)

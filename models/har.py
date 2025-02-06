@@ -4,18 +4,21 @@ import statsmodels.api as sm
 from statsmodels.regression.rolling import RollingOLS
 
 class Har:
-    def __init__(self, rv: list, beg_index: int = 22):
-        self.log_rv = np.log(rv)
+    def __init__(self, rv: list, beg_index: int = 22, log = False):
+        if log:
+            self.rv = np.log(rv)
+        else:
+            self.rv = rv
         self.beg_index = beg_index
-        self.y = self.log_rv[self.beg_index:]
-        self.xd = self.log_rv[self.beg_index - 1: len(self.log_rv) - 1]
+        self.y = self.rv[self.beg_index:]
+        self.xd = self.rv[self.beg_index - 1: len(self.rv) - 1]
         self.xw = self._calc_backwards_ma(5)
         self.xm = self._calc_backwards_ma(22)
 
     def _calc_backwards_ma(self, k: int):
         output = []
-        for i in range(len(self.log_rv) - self.beg_index):
-            ma = sum(self.log_rv[self.beg_index - k + i:self.beg_index + i])/k
+        for i in range(len(self.rv) - self.beg_index):
+            ma = sum(self.rv[self.beg_index - k + i:self.beg_index + i])/k
             output.append(ma)
         return output
 

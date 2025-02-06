@@ -8,4 +8,6 @@ class Mse:
         self.rmse = round(np.sqrt(self.mse), 6)
 
     def print_rmse(self):
-        print(self.model, "model:", self.rmse)
+        output = self.model + " model: " + str(self.rmse)
+        print(output)
+        return(output)
