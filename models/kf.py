@@ -87,17 +87,18 @@ def load_rv_one(path, select):
     rv_select = rv_all[select]
     return rv_select
 psn = 1000
-rv = load_rv_one('data/rv_dataset.csv', '.SPX')[:psn]
-# rv = load_rv('data/SNP500_RV_5min.csv', 'RV')[:psn]
+# rv = load_rv_one('data/rv_dataset.csv', '.SPX')[:psn]
+rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV')[:psn])
 np.random.seed(123)
-h = Particle(rv, h=0.14, delta=1, m=600, t=psn).recursive()
+# h = Particle(rv, h=0.14, delta=1, m=600, t=psn).recursive()
+h = np.array([0.01] * psn)
 # h = load_rv('data/SP500_RQ_5min.csv', 'RQ')[:psn]
 print('h done.')
 
-rv = rv[200:]
-h = h[200:]
+# rv = rv[200:]
+# h = h[200:]
 
-initial_params = [0.7, 0.5, 0.3, 0.1, 1]
+initial_params = [0.7, 0.5, 0.5, 0.5, 1]
 ll = log_likelihood(initial_params, rv, h)
 print(ll)
 result = minimize(

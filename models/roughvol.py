@@ -31,7 +31,7 @@ class RoughVolatility:
             numerator = delta * self.log_rv[len(self.log_rv) - i - 1] - (i + self.err + delta) * self.log_rv[len(self.log_rv) - 1]
             denominator = (i + self.err + delta) * ((i + self.err) ** (self.h + 0.5))
             summation += numerator / denominator
-        fc = (math.cos(self.h * math.pi) / math.pi) * (delta ** (self.h + 0.5)) * summation
+        fc = (math.cos(self.h * math.pi) / math.pi) * (delta ** (self.h - 0.5)) * summation
         if back_transform:
             output = self._back_transform(fc=fc, delta=delta)
         else:
