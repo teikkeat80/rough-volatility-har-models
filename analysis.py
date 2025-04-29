@@ -78,7 +78,7 @@ def run_analysis(rv):
     har_mod = HarOls(df, dep='y', indep=['har_x_d', 'har_x_w', 'har_x_m'], rolling_window=W)
     har_pred = har_mod.predict()
     har_mod.fols_summary()
-    # har_mod.tols_summary()
+    har_mod.tols_summary()
 
     print('combined model predicting.............')
     comb_mod = HarOls(df, dep='y', indep=['roughvol_fc_d', 'har_x_w', 'har_x_m'], rolling_window=W)
