@@ -18,9 +18,9 @@ class HARK2:
         self.h = h
     
     def construct_z(self, n):
-        self.j = math.floor(2 * n ** math.log(1 + self.h) * math.log(n))     # change h to 0.25?
+        self.j = math.floor(2 * n ** math.log(1 + 0.25) * math.log(n))     # change h to 0.25?
         self.FBM_CONSTANT = math.sqrt((math.pi * self.h * ((2 * self.h) - 1)) / math.gamma(2 - (2 * self.h)) * math.gamma(self.h + .5) ** 2 * math.sin(math.pi * (self.h - .5)))
-        self.zeta_ratio = ((self.j ** (4 - 2 * (h + .5))) / (self.j ** ((- 2) * (h + .5)))) ** (1 / self.j)
+        self.zeta_ratio = ((self.j ** (4 - 2 * (self.h + .5))) / (self.j ** ((- 2) * (self.h + .5)))) ** (1 / self.j)
         self.zetas = [(self.j ** ((- 2) * (self.h + .5))) * (self.zeta_ratio ** i) for i in range(self.j + 1)]
         self.c = np.array([integrate.quad(lambda x: self.FBM_CONSTANT * x ** (- self.h - .5) / math.gamma(.5 - self.h), self.zetas[i], self.zetas[i + 1])[0] for i in range(self.j)])
         self.kappa = np.array([(1 / self.c[i]) * integrate.quad(lambda x: self.FBM_CONSTANT * x * x ** (- self.h - .5) / math.gamma(.5 - self.h), self.zetas[i], self.zetas[i + 1])[0] for i in range(self.j)])
@@ -139,7 +139,6 @@ def log_likelihood(params, rv):                # Have to change r and h when wit
     ll = - (22 / 2) * len(rv) * math.log(2 * math.pi) - (1 / 2) * sum_ll
     return -ll
 
-
 ############################
 #        LOAD DATA         #
 ############################
@@ -164,7 +163,7 @@ def load_rv_one(path, select):
 indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
 for idx in indices:
 # log_rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV'))
-    log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}'))
+    log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
 # rq = 2 * np.array(load_rv('data/SP500_RQ_5min.csv', 'RQ')) / np.exp(log_rv) ** 2
 
 ############################
@@ -177,8 +176,8 @@ for idx in indices:
 # b2 = 0.2
 # b3 = 0.1
 # q = 0.3
-    r = 0.1
-    h = 0.15
+# r = 0.1
+# h = 0.15
 # y = HARK2(b0, b1, b2, b3, q, r, h)
 # state, obs = y.simulate(10000, np.mean(log_rv))
 # obs = obs[-1000:]
@@ -258,7 +257,7 @@ for idx in indices:
     np.set_printoptions(suppress=True)
     print('Estimated Params: ', np.round(est_params, 4))
     print('AIC: ', aic)
-    with open(f'result/HARK2_{idx}_FULL_EST_WOLA.pickle', 'wb') as file:
+    with open(f'result/HARK2_{idx}_FULL_EST_IDJ.pickle', 'wb') as file:
         pickle.dump(result, file)
 
     print(f"Elapsed time: {end_time - start_time} seconds")
@@ -268,11 +267,11 @@ for idx in indices:
 ############################
 
 # for ix in indices:
-#     with open(f'result/HARK_{ix}_FULL_EST.pickle', 'rb') as file:
-#         x = pickle.load(file)
-#         print(ix)
-#         print("-------------------------")
-#         print(x)
+# with open(f'result/HARK2_{idx}_FULL_EST_WOLA.pickle', 'rb') as file:
+#     result = pickle.load(file)
+#     print(idx)
+#     print("-------------------------")
+#     print(result.x[0])
 
 # [RVDATA_1000] HARK WITH RQ                  [0.0019, 0.4662, 0.2722, 0.1360, 0.5259]                   LL: 20077.999010541876
 # [RVDATA_1000] HARK WITH ESTIMATED R         [0.0017, 0.6165, 0.1837, 0.1016, 0.4158, 0.2865]           LL: 20078.117941831013
@@ -285,44 +284,43 @@ for idx in indices:
 # [RVDATA_FULL] HARK2 WITH RQ                 [-0.0135, 0.6528, 0.2448, 0.0708, 0.3454, 0.0115]           LL: 81923.07833454263
 
 
-
-# [SPX_FULL] HARK WITH ESTIMATED R       [ 0.0005,  0.8240,  0.0640,  0.1117,  0.1985,  0.2101]           LL: 51175.66006358707
-# [SPX_FULL] HARK2                       [ 0.0006,  0.2599,  0.3766,  0.3636,  0.1100,  0.0327,  0.1612]  LL: 51170.5074265299
+# [SPX_FULL] HARK WITH ESTIMATED R       [ 0.0005,  0.8240,  0.0640,  0.1117,  0.1985,  0.2101]           LL: 51175.66006358707   AIC: 102363.32012717414
+# [SPX_FULL] HARK2                       [ 0.0006,  0.2599,  0.3766,  0.3636,  0.1100,  0.0327,  0.1612]  LL: 51170.5074265299    AIC: 102355.0148530598  *
 # [SPX_FULL] HARK WITH ESTIMATED R       [-0.1401,  0.8192,  0.0612,  0.0912,  0.1983,  0.2107]           LL: 51189.23216113838   AIC: 102390.46432227676 
 # [SPX_FULL] HARK2                       [ 0.0010,  0.7435, -0.0657,  0.3222,  0.1087,  0.1094,  0.1724]  LL: 51187.75817799031   AIC: 102389.51635598062 *
 
-# [GDAXI_FULL] HARK WITH ESTIMATED R     [ 0.0009,  0.8514,  0.0544,  0.0941,  0.1432,  0.1840]           LL: 50637.460505579686                                      
-# [GDAXI_FULL] HARK2                     [ 0.0012,  0.0921,  0.2192,  0.6889,  0.1318,  0.0374,  0.2052]  LL: 50632.273330495394
+# [GDAXI_FULL] HARK WITH ESTIMATED R     [ 0.0009,  0.8514,  0.0544,  0.0941,  0.1432,  0.1840]           LL: 50637.460505579686  AIC: 101286.92101115937                                      
+# [GDAXI_FULL] HARK2                     [ 0.0012,  0.0921,  0.2192,  0.6889,  0.1318,  0.0374,  0.2052]  LL: 50632.273330495394  AIC: 101278.54666099079 *
 # [GDAXI_FULL] HARK WITH ESTIMATED R     [ 0.0012,  0.8428,  0.0619,  0.0953,  0.1448,  0.1831]           LL: 50654.27852826023   AIC: 101320.55705652045 #
 # [GDAXI_FULL] HARK2                     [-0.0012,  0.525 ,  0.2779,  0.1967,  0.1816,  0.1584,  0.3318]  LL: 50666.96021412977   AIC: 101347.92042825955
 
-# [FCHI_FULL] HARK WITH ESTIMATED R      [ 0.0007, 0.7260, 0.1783, 0.0956, 0.1693, 0.1525]           LL: 50498.018350165206                                 
-# [FCHI_FULL] HARK2                      [ 0.001  0.3952 0.343  0.262  0.0833 0.1073 0.2153]         LL: 50490.35612641261
+# [FCHI_FULL] HARK WITH ESTIMATED R      [ 0.0007,  0.7260,  0.1783,  0.0956,  0.1693,  0.1525]           LL: 50498.018350165206  AIC: 101008.03670033041                               
+# [FCHI_FULL] HARK2                      [ 0.001 ,  0.3952,  0.343 ,  0.262 ,  0.0833,  0.1073,  0.2153]  LL: 50490.35612641261   AIC: 100994.71225282522 *
 # [FCHI_FULL] HARK WITH ESTIMATED R      [ 0.0005,  0.711 ,  0.1904,  0.0984,  0.1726,  0.1501]           LL: 50517.70508697081   AIC: 101047.41017394162 #
 # [FCHI_FULL] HARK2                      [ 0.0018,  0.685 ,  0.274 ,  1.4806, -0.1237,  0.1506,  0.2773]  LL: 51297.312538395534  AIC: 102608.62507679107
 
-# [FTSE_FULL] HARK WITH ESTIMATED R      [ 0.0031, 0.8709, 0.0618, 0.0677, 0.1262, -0.229]           LL: 50937.78231822865                                             
-# [FTSE_FULL] HARK2                      [0.0031 0.2452 0.1716 0.5838 0.0095 0.1971 0.2195]    LL: 50930.15520599725
+# [FTSE_FULL] HARK WITH ESTIMATED R      [ 0.0031,  0.8709,  0.0618,  0.0677,  0.1262, -0.229 ]           LL: 50937.78231822865   AIC: 101887.5646364573                                             
+# [FTSE_FULL] HARK2                      [ 0.0031,  0.2452,  0.1716,  0.5838,  0.0095,  0.1971,  0.2195]  LL: 50930.15520599725   AIC: 101874.3104119945  *
 # [FTSE_FULL] HARK WITH ESTIMATED R      [-0.1171,  0.8497,  0.0754,  0.0504,  0.1294,  0.2281]           LL: 50950.09046540441   AIC: 101912.18093080883
 # [FTSE_FULL] HARK2                      [ 0.0011,  0.62  , -0.4274,  0.8076,  0.0201,  0.2008,  0.2236]  LL: 50947.76089784027   AIC: 101909.52179568054 *
 
-# [OMXSPI_FULL] HARK WITH ESTIMATED R    [-0.0002, 0.936, -0.0122, 0.0759, 0.1218, 0.2143]          LL: 50820.5730916689
-# [OMXSPI_FULL] HARK2                         
+# [OMXSPI_FULL] HARK WITH ESTIMATED R    [-0.0002,  0.936 , -0.0122,  0.0759,  0.1218,  0.2143]           LL: 50820.5730916689    AIC: 101653.1461833378
+# [OMXSPI_FULL] HARK2                    [ 0.0042,  0.3075, -0.0328,  0.7263,  0.0035,  0.1652,  0.2088]  LL: 50813.50232651696   AIC: 101641.00465303392 *
 # [OMXSPI_FULL] HARK WITH ESTIMATED R    [ 0.0016,  0.9367, -0.013 ,  0.0765,  0.1219,  0.2144]           LL: 50840.206897375385  AIC: 101692.41379475077
 # [OMXSPI_FULL] HARK2                    [ 0.0011, -0.1636,  0.2294,  0.9346,  0.1041,  0.0977,  0.1975]  LL: 50832.30442002403   AIC: 101678.60884004807 *
 
-# [N225_FULL] HARK WITH ESTIMATED R           
-# [N225_FULL] HARK2                           
+# [N225_FULL] HARK WITH ESTIMATED R      [ 0.0002,  0.7364,  0.1548,  0.1085,  0.19  ,  0.1826]           LL: 50886.41570522758   AIC: 101784.83141045515
+# [N225_FULL] HARK2                      [-0.0006,  0.3014, -0.2823,  0.9809,  0.088 ,  0.1107,  0.1907]  LL: 50869.20841364947   AIC: 101752.41682729893 *
 # [N225_FULL] HARK WITH ESTIMATED R      [-0.    ,  0.7388,  0.1532,  0.1077,  0.1899,  0.1835]           LL: 50910.02047105667   AIC: 101832.04094211334
 # [N225_FULL] HARK2                      [ 0.0011,  0.3049, -0.1703,  0.8658,  0.1103,  0.1182,  0.1998]  LL: 50893.57887703671   AIC: 101801.15775407341 *
 
-# [KS11_FULL] HARK WITH ESTIMATED R           
-# [KS11_FULL] HARK2                           
+# [KS11_FULL] HARK WITH ESTIMATED R      [ 0.0009,  0.7893,  0.1036,  0.1071,  0.1402,  0.1627]           LL: 50387.52793491119   AIC: 100787.05586982238  
+# [KS11_FULL] HARK2                      [-0.0009,  0.6251, -0.1347,  0.5094,  0.0728,  0.1435,  0.2473]  LL: 50377.18199524665   AIC: 100768.3639904933  *
 # [KS11_FULL] HARK WITH ESTIMATED R      [ 0.001 ,  0.7929,  0.1003,  0.1068,  0.1398,  0.1633]           LL: 50412.37747081936   AIC: 100836.75494163872 #
 # [KS11_FULL] HARK2                      [-0.0235,  0.3854,  0.3454,  2.7973, -0.1496,  0.1193,  0.2834]  LL: 51199.88076661632   AIC: 102413.76153323264
 
-# [HSI_FULL] HARK WITH ESTIMATED R            
-# [HSI_FULL] HARK2                            
+# [HSI_FULL] HARK WITH ESTIMATED R       [-0.0009,  0.905 , -0.0009,  0.0956,  0.101 ,  0.2016]           LL: 50553.19558548151   AIC: 101118.39117096302
+# [HSI_FULL] HARK2                       [ 0.0017,  0.7899, -0.1547,  0.3651, -0.0544,  0.1855,  0.2665]  LL: 50549.79274379712   AIC: 101113.58548759425 *
 # [HSI_FULL] HARK WITH ESTIMATED R       [ 0.0016,  0.8982,  0.008 ,  0.094 ,  0.1022,  0.2012]           LL: 50571.24377914674   AIC: 101154.48755829348 #
 # [HSI_FULL] HARK2                       [ 0.0015,  1.3234, -0.3139,  0.3452, -0.0222,  0.1876,  0.2758]  LL: 51380.034872630946  AIC: 102774.06974526189
 
@@ -365,6 +363,52 @@ for idx in indices:
 # plt.title("Simulation")
 # plt.legend()
 # plt.show()
+
+############################
+#        ROLLING FC        #
+############################
+
+# log_rv = log_rv[:700]
+# window = 500
+# initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1]
+# i = 0
+# predicted = []
+# actual = []
+# hurst = []
+
+# while window + i < len(log_rv):
+#     print(i)
+#     series = log_rv[i: window + i]
+#     start_time = time()
+#     result = minimize(
+#         log_likelihood,
+#         initial_params,
+#         args=(series),
+#         method='Nelder-Mead',
+#         options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 2000}
+#     )
+#     end_time = time()
+#     print(f"Elapsed time: {end_time - start_time} seconds")
+#     est_params = result.x
+#     b0, b1, b2, b3, q, r, h = est_params
+#     hurst.append(h)
+#     y = HARK2(b0, b1, b2, b3, q, r, h)
+#     y.construct_z(len(series))
+#     y.construct_kf()
+#     y.initialise_a(mean=np.mean(series))
+#     y.initialise_p(var_iv=np.var(series), var_z=0.001)
+#     for l in range(len(series)):
+#         y.predict()
+#         y.update(series[l])
+#     pred, _ = y.predict()
+#     predicted.append((y.m @ pred).item())
+#     actual.append(log_rv[window + i])
+#     i += 1
+
+# print(hurst)
+# print(predicted)
+# print(actual)
+# print(f"rmse: {np.sqrt(np.mean((np.array(actual) - np.array(predicted)) ** 2))}")
 
 ############################
 #    EVALUATION RESULT     #
