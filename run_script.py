@@ -3,8 +3,8 @@ from scipy.optimize import minimize
 import math
 import pandas as pd
 import scipy.integrate as integrate
-import pickle
 from time import time
+import os
 
 class HARK2:
     def __init__(self, b0, b1, b2, b3, q, r, h):
@@ -76,57 +76,101 @@ def log_likelihood(params, rv):
     return -ll
 
 # Load Data
-indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
-path = 'data/rv_dataset.csv'
+# indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
+indices = ['SPX']
+path = '/Users/teikkeattee/Workplace/UM_MSC_STATS/UM_STATS_Research_Project/Project_Placeholder/data/rv_dataset.csv'
 df = pd.read_csv(path)
 dict = df.iloc[:, 1:].to_dict(orient='list')
+columns = ['iteration', 'b0', 'b1', 'b2', 'b3', 'q', 'r', 'h', 'loglik', 'predicted', 'var', 'actual']
 
-idx = indices[2]
-rv = dict[f'.{idx}']
-log_rv = np.log(rv)
+for idx in indices:
+    # Load Data
+    rv = dict[f'.{idx}']
+    log_rv = np.log(rv)
 
-# Select Window
-log_rv = log_rv[-700:]
-window = 500
-initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1]
-i = 0
-predicted = []
-actual = []
-hurst = []
+    # Select subset
+    log_rv = log_rv[-505:]
 
-while window + i < len(log_rv):
-    print(i)
-    series = log_rv[i: window + i]
-    start_time = time()
-    result = minimize(
-        log_likelihood,
-        initial_params,
-        args=(series),
-        method='Nelder-Mead',
-        options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 3000}
-    )
-    end_time = time()
-    print(f"Elapsed time: {end_time - start_time} seconds")
-    est_params = result.x
-    b0, b1, b2, b3, q, r, h = est_params
-    # hurst.append(h)
-    y = HARK2(b0, b1, b2, b3, q, r, h)
-    y.construct_z(len(series))
-    y.construct_kf()
-    y.initialise_a(mean=np.mean(series))
-    y.initialise_p(var_iv=np.var(series), var_z=0.001)
+    # Output file path
+    output_file = f'/Users/teikkeattee/Workplace/UM_MSC_STATS/UM_STATS_Research_Project/Project_Placeholder/fcst_result/HARK2_{idx}_FCST.csv'
 
-    for l in range(len(series)):
-        y.predict()
-        y.update(series[l])
-    pred, _ = y.predict()
-    predicted.append((y.m @ pred).item())
-    actual.append(log_rv[window + i])
-    print((y.m @ pred).item())
-    i += 1
+    # Determine where to resume from (if file already exists)
+    if os.path.exists(output_file):
+        existing_df = pd.read_csv(output_file)
+        start_iter = existing_df['iteration'].max() + 1
+    else:
+        start_iter = 0
+        # Write header if file doesn't exist
+        pd.DataFrame(columns=columns).to_csv(output_file, index=False)
 
-# print(hurst)
-# print(predicted)
-# print(actual)
-print(f"rmse: {np.sqrt(np.mean((np.array(actual) - np.array(predicted)) ** 2))}")
+    # Initialise Parameters
+    window = 500
+    initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1]
+
+    for i in range(start_iter, len(log_rv) - window):
+        start_time = time()
+        print(f'iteration {i} for {idx}')
+
+        try:
+            # Select window
+            series = log_rv[i: window + i]
+
+            # Estimation
+            result = minimize(
+                log_likelihood,
+                initial_params,
+                args=(series),
+                method='Nelder-Mead',
+                options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 2000}
+            )
+
+            # Record Estimation Result
+            est_params = result.x
+            loglik = - result.fun
+            b0, b1, b2, b3, q, r, h = est_params
+
+            # Initialise Filter
+            y = HARK2(b0, b1, b2, b3, q, r, h)
+            y.construct_z(len(series))
+            y.construct_kf()
+            y.initialise_a(mean=np.mean(series))
+            y.initialise_p(var_iv=np.var(series), var_z=0.001)
+
+            # Run filter
+            for l in range(len(series)):
+                y.predict()
+                y.update(series[l])
+
+            # Generate prediction and record actual
+            a_pred, p_pred = y.predict()
+            predicted = (y.m @ a_pred).item()
+            var = (y.m @ p_pred @ y.m.T).item()
+            actual = log_rv[window + i]
+
+            # Combine into rows
+            row = pd.DataFrame([{
+                'iteration': i,
+                'b0': b0,
+                'b1': b1,
+                'b2': b2,
+                'b3': b3,
+                'q': q,
+                'r': r,
+                'h': h,
+                'loglik': loglik,
+                'predicted': predicted,
+                'var': var,
+                'actual': actual
+            }])
+
+            # Append to csv
+            row.to_csv(output_file, mode='a', index=False, header=False)
+        
+        except Exception as e:
+            print(f'Error at iteration{i} in {idx}: {e}')
+            continue
+            
+        # Record Time
+        end_time = time()
+        print(f"Elapsed time: {end_time - start_time} seconds")
 

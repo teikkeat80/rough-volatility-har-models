@@ -135,7 +135,7 @@ def load_rv_one(path, select):
 
 
 indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
-idx = indices[2]
+idx = indices[0]
 log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
 # for idx in indices:
 # # log_rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV'))
@@ -358,7 +358,7 @@ log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}'))
 #        ROLLING FC        #
 ############################
 
-log_rv = log_rv[-700:]
+log_rv = log_rv[-501:]
 window = 500
 initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1]
 # h = 0
@@ -395,10 +395,20 @@ while window + i < len(log_rv):
     for l in range(len(series)):
         y.predict()
         y.update(series[l])
-    pred, _ = y.predict()
+    pred, var = y.predict()
     predicted.append((y.m @ pred).item())
     actual.append(log_rv[window + i])
+    print(b0)
+    print(b1)
+    print(b2)
+    print(b3)
+    print(q)
+    print(r)
+    print(h)
+    print(- result.fun)
     print((y.m @ pred).item())
+    print(log_rv[window + i])
+    print((y.m @ var @ y.m.T).item())
     i += 1
 
 # print(hurst)
