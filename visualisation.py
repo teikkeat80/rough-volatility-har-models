@@ -17,6 +17,17 @@ def plot_forecast(df, model):
     plt.grid(True)
     plt.show()
 
+def plot_comparison(actual, predicted, model):
+    plt.figure(figsize=(10, 6))
+    plt.plot(np.arange(len(actual)), actual, label='actual')
+    plt.plot(np.arange(len(predicted)), predicted, label=model)
+    plt.title(f'Forecast Plot of RV - {model}')
+    plt.xlabel('Date')
+    plt.ylabel('Values')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
 def plot_forecast_returns(df, model):
     returns = np.array(df[model]) * np.random.normal(0, 1, len(df[model]))
     plt.figure(figsize=(10, 6))

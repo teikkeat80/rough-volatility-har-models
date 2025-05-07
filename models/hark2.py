@@ -6,6 +6,7 @@ import scipy.integrate as integrate
 from matplotlib import pyplot as plt
 import pickle
 from time import time
+from hurst import Hurst
 
 class HARK2:
     def __init__(self, b0, b1, b2, b3, q, r, h):
@@ -18,7 +19,7 @@ class HARK2:
         self.h = h
     
     def construct_z(self, n):
-        self.j = math.floor(2 * n ** math.log(1 + 0.25) * math.log(n))     # change h to 0.25?
+        self.j = math.floor(2 * n ** math.log(1 + self.h) * math.log(n))     # change h to 0.25?
         self.FBM_CONSTANT = math.sqrt((math.pi * self.h * ((2 * self.h) - 1)) / math.gamma(2 - (2 * self.h)) * math.gamma(self.h + .5) ** 2 * math.sin(math.pi * (self.h - .5)))
         self.zeta_ratio = ((self.j ** (4 - 2 * (self.h + .5))) / (self.j ** ((- 2) * (self.h + .5)))) ** (1 / self.j)
         self.zetas = [(self.j ** ((- 2) * (self.h + .5))) * (self.zeta_ratio ** i) for i in range(self.j + 1)]
@@ -56,15 +57,23 @@ class HARK2:
         self.construct_kf()
         self.initialise_a(mean)
         state = []
-        state.append(self.a.flatten().tolist())
+        state.append(self.a)
         obs = []
         obs.append((self.m @ self.a + np.random.normal(0, self.r)).item())
+        zfilt = []
+        zfilt.append((self.m[:, :self.j] @ self.a[:self.j, :]).item())
+        ivfilt = []
+        ivfilt.append((self.m[:, -22:] @ self.a[-22:, :]).item())
         for _ in range(n - 1):
             self.a = self.k + self.t @ self.a + self.g @ np.random.multivariate_normal(np.zeros(self.j + 22), self.Q).reshape(self.j + 22, 1)
-            state.append(self.a.flatten().tolist())
+            state.append(self.a)
             rv = self.m @ self.a + np.random.normal(0, self.r)
+            z = self.m[:, :self.j] @ self.a[:self.j, :]
+            iv = self.m[:, -22:] @ self.a[-22:, :]
             obs.append(rv.item())
-        return state, obs
+            zfilt.append(z.item())
+            ivfilt.append(iv.item())
+        return state, zfilt, ivfilt, obs
     
     def predict(self):
         a_pred = self.k + self.t @ self.a
@@ -86,41 +95,6 @@ class HARK2:
         self.a = a_upd
         self.p = p_upd
         return v, f, a_upd, p_upd
-
-    # def simulate_iv(self, n, mean):
-    #     self.construct_z(n)
-    #     self.construct_kf()
-    #     self.initialise_a(mean)
-    #     a = self.a[-22:, :]
-    #     t = self.t[-22:, -22:]
-    #     m = self.m[:, -22:]
-    #     g = np.diag(self.g[-22:, -22:]).reshape(22, 1)
-    #     k = self.k[-22:, :]
-    #     Q = self.Q[-22:, -22:]
-    #     collector = []
-    #     collector.append((m @ a + np.random.normal(0, self.r)).item())
-    #     for _ in range(n):
-    #         a = k + t @ a + (g @ np.random.multivariate_normal(np.zeros(22), Q)).reshape(22, 1)
-    #         x = m @ a + np.random.normal(0, self.r)
-    #         collector.append(x.item())
-    #     return collector
-    
-    # def simulate_z(self, n, mean):
-    #     self.construct_z(n)
-    #     self.construct_kf()
-    #     self.initialise_a(mean)
-    #     a = self.a[:self.j, :]
-    #     t = self.t[:self.j, :self.j]
-    #     m = self.m[:, :self.j]
-    #     g = np.diag(self.g[:self.j, :self.j]).reshape(self.j, 1)
-    #     k = self.k[:self.j, :]
-    #     collector = []
-    #     collector.append((m @ a + np.random.normal(0, self.r)).item())
-    #     for _ in range(n):
-    #         a = k + t @ a + (g @ np.random.normal(0, self.q, 1)).reshape(self.j, 1)
-    #         x = m @ a + np.random.normal(0, self.r)
-    #         collector.append(x.item())
-    #     return collector
 
 def log_likelihood(params, rv):                # Have to change r and h when with rq
     b0, b1, b2, b3, q, r, h = params
@@ -161,32 +135,48 @@ def load_rv_one(path, select):
 
 
 indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
-for idx in indices:
-# log_rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV'))
-    log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
-# rq = 2 * np.array(load_rv('data/SP500_RQ_5min.csv', 'RQ')) / np.exp(log_rv) ** 2
+idx = indices[2]
+log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
+# for idx in indices:
+# # log_rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV'))
+#     log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
+# # rq = 2 * np.array(load_rv('data/SP500_RQ_5min.csv', 'RQ')) / np.exp(log_rv) ** 2
 
 ############################
 #        SIMULATION        #
 ############################
 
-# np.random.seed(123)
+# # np.random.seed(456)
 # b0 = 0.001
-# b1 = 0.5
+# b1 = 0.3
 # b2 = 0.2
-# b3 = 0.1
+# b3 = 0.2
 # q = 0.3
 # r = 0.1
-# h = 0.15
+# h = 0.2
 # y = HARK2(b0, b1, b2, b3, q, r, h)
-# state, obs = y.simulate(10000, np.mean(log_rv))
+# state, zfilt, ivfilt,obs = y.simulate(10000, np.mean(log_rv))
 # obs = obs[-1000:]
-# plt.plot(obs, label="predicted")
+# zfilt = zfilt[-1000:]
+# ivfilt = ivfilt[-1000:]
+# plt.plot(obs, label="RV")
+# plt.plot(ivfilt, label="IV")
+# plt.plot(zfilt, label="z")
 # plt.xlabel("Time")
 # plt.ylabel("Volatility")
 # plt.title("Simulation")
 # plt.legend()
 # plt.show()
+# q_list = [0.5, 1, 1.5, 2, 3]
+# max_delta = 30
+# zh = Hurst(zfilt, q_list, max_delta, 'overlap')
+# ivh = Hurst(ivfilt, q_list, max_delta, 'overlap')
+# zh_est = zh.est_h()
+# ivh_est = ivh.est_h()
+# print(zh_est)
+# print(ivh_est)
+# h.plot_scale_m_delta()
+# h.plot_scale_zeta_q()
 # plt.acorr(obs, maxlags=50)
 # plt.xlabel("lag")
 # plt.ylabel("ACF")
@@ -234,33 +224,33 @@ for idx in indices:
 # def callback(params):
 #     print(f"Current Params: {params}, Current LL: {log_likelihood(params, h, log_rv)}")
 
-    initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1]
-    # init_ll = log_likelihood(initial_params, log_rv) 
-    # print(f"initial likelihood: {init_ll}")
+    # initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1]
+    # # init_ll = log_likelihood(initial_params, log_rv) 
+    # # print(f"initial likelihood: {init_ll}")
 
-    start_time = time()
-    result = minimize(
-        log_likelihood,
-        initial_params,
-        args=(log_rv),
-        method='Nelder-Mead',
-        options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 8000}  ## NM['xatol': 1e-6, 'fatol': 1e-3] | BGFS['eps': 1e-3, 'xrtol': 1e-3]
-    )
-    end_time = time()
+    # start_time = time()
+    # result = minimize(
+    #     log_likelihood,
+    #     initial_params,
+    #     args=(log_rv),
+    #     method='Nelder-Mead',
+    #     options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 8000}  ## NM['xatol': 1e-6, 'fatol': 1e-3] | BGFS['eps': 1e-3, 'xrtol': 1e-3]
+    # )
+    # end_time = time()
 
-    est_params = result.x
-    final_ll = - result.fun
-    aic = (2 * len(initial_params)) - (2 * final_ll)
-    print(idx)
-    print("-------------------------")
-    print(result)
-    np.set_printoptions(suppress=True)
-    print('Estimated Params: ', np.round(est_params, 4))
-    print('AIC: ', aic)
-    with open(f'result/HARK2_{idx}_FULL_EST_IDJ.pickle', 'wb') as file:
-        pickle.dump(result, file)
+    # est_params = result.x
+    # final_ll = - result.fun
+    # aic = (2 * len(initial_params)) - (2 * final_ll)
+    # print(idx)
+    # print("-------------------------")
+    # print(result)
+    # np.set_printoptions(suppress=True)
+    # print('Estimated Params: ', np.round(est_params, 4))
+    # print('AIC: ', aic)
+    # with open(f'result/HARK2_{idx}_FULL_EST_IDJ.pickle', 'wb') as file:
+    #     pickle.dump(result, file)
 
-    print(f"Elapsed time: {end_time - start_time} seconds")
+    # print(f"Elapsed time: {end_time - start_time} seconds")
 
 ############################
 #    ESTIMATION RESULT     #
@@ -368,47 +358,72 @@ for idx in indices:
 #        ROLLING FC        #
 ############################
 
-# log_rv = log_rv[:700]
-# window = 500
-# initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1]
-# i = 0
-# predicted = []
-# actual = []
-# hurst = []
+log_rv = log_rv[-700:]
+window = 500
+initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1]
+# h = 0
+i = 0
+predicted = []
+actual = []
+hurst = []
 
-# while window + i < len(log_rv):
-#     print(i)
-#     series = log_rv[i: window + i]
-#     start_time = time()
-#     result = minimize(
-#         log_likelihood,
-#         initial_params,
-#         args=(series),
-#         method='Nelder-Mead',
-#         options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 2000}
-#     )
-#     end_time = time()
-#     print(f"Elapsed time: {end_time - start_time} seconds")
-#     est_params = result.x
-#     b0, b1, b2, b3, q, r, h = est_params
-#     hurst.append(h)
-#     y = HARK2(b0, b1, b2, b3, q, r, h)
-#     y.construct_z(len(series))
-#     y.construct_kf()
-#     y.initialise_a(mean=np.mean(series))
-#     y.initialise_p(var_iv=np.var(series), var_z=0.001)
-#     for l in range(len(series)):
-#         y.predict()
-#         y.update(series[l])
-#     pred, _ = y.predict()
-#     predicted.append((y.m @ pred).item())
-#     actual.append(log_rv[window + i])
-#     i += 1
+while window + i < len(log_rv):
+    print(i)
+    series = log_rv[i: window + i]
+    start_time = time()
+    result = minimize(
+        log_likelihood,
+        initial_params,
+        args=(series),
+        method='Nelder-Mead',
+        options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 2000}
+    )
+    end_time = time()
+    print(f"Elapsed time: {end_time - start_time} seconds")
+    est_params = result.x
+    b0, b1, b2, b3, q, r, h = est_params
+    # hurst.append(h)
+    y = HARK2(b0, b1, b2, b3, q, r, h)
+    y.construct_z(len(series))
+    y.construct_kf()
+    y.initialise_a(mean=np.mean(series))
+    y.initialise_p(var_iv=np.var(series), var_z=0.001)
+    # y.construct_kf(extended=False)
+    # y.initialise_a(mean=np.mean(series), extended=False)
+    # y.initialise_p(var_iv=np.var(series), extended=False)
+
+    for l in range(len(series)):
+        y.predict()
+        y.update(series[l])
+    pred, _ = y.predict()
+    predicted.append((y.m @ pred).item())
+    actual.append(log_rv[window + i])
+    print((y.m @ pred).item())
+    i += 1
 
 # print(hurst)
 # print(predicted)
 # print(actual)
-# print(f"rmse: {np.sqrt(np.mean((np.array(actual) - np.array(predicted)) ** 2))}")
+print(f"rmse: {np.sqrt(np.mean((np.array(actual) - np.array(predicted)) ** 2))}")
+
+# rmse: 0.245530960106272
+# rmse: 0.24221746782240985
+
+# SPX
+# HARK2 rmse: 0.3163530437838898
+# HARK  rmse: 0.31733840261613433
+
+# GDAXI
+# HARK2 rmse: 0.24402523492147946
+# HARK  rmse: 0.24366988057396213
+
+# FCHI
+# HARK2 rmse: 0.25860024653772506
+# HARK  rmse: 0.2585008462218376
+
+# FTSE
+# HARK2
+# HARK  rmse: 0.3357106106923433
 
 ############################
 #    EVALUATION RESULT     #

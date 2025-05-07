@@ -1,13 +1,8 @@
 import numpy as np
 
 # MSE Calculation
-class Mse:
-    def __init__(self, df, act: str, pred: str):
-        self.model = pred
-        self.mse = np.mean((df[act] - df[pred]) ** 2)
-        self.rmse = round(np.sqrt(self.mse), 6)
+def rmse(actual, predicted):
+    return np.sqrt(np.mean((np.array(actual) - np.array(predicted)) ** 2))
 
-    def print_rmse(self):
-        output = self.model + " model: " + str(self.rmse)
-        print(output)
-        return(output)
+def qlike(actual, predicted):
+    return(np.mean(np.log(predicted) + np.array(actual) / np.array(predicted)))
