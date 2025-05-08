@@ -121,7 +121,7 @@ for idx in indices:
                 initial_params,
                 args=(series),
                 method='Nelder-Mead',
-                options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 4000}
+                options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 2000}
             )
 
             # Record Estimation Result

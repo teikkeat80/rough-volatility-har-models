@@ -379,7 +379,7 @@ while window + i < len(log_rv):
         initial_params,
         args=(series),
         method='Nelder-Mead',
-        options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 4000}
+        options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 2000}
     )
     end_time = time()
     print(f"Elapsed time: {end_time - start_time} seconds")
