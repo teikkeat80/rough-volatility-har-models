@@ -7,14 +7,16 @@ class RoughVolatility:
         self.series = np.log(series)
         self.err = error
         self.nu = nu
+        self.ammse = math.gamma(3 / 2 - hurst) / (math.gamma(hurst + 1 / 2) * math.gamma(2 - 2 * hurst))
+
+    def cond_var(self, delta=1):
+        h, ammse = self.h, self.ammse
+        return ammse * delta ** (2 * h)
 
     def back_transform(self, lpred, delta=1):
-        h, nu = self.h, self.nu
-        var = (
-            math.gamma(3 / 2 - h)
-            / (math.gamma(h + 1 / 2) * math.gamma(2 - 2 * h))
-        ) * delta ** (2 * h)
-        return np.exp(lpred + 2 * var * nu ** 2)
+        cond_var = self.cond_var(delta=delta)
+        nu = self.nu
+        return np.exp(lpred + 2 * cond_var * nu ** 2)
     
     def lpred(self, delta=1, bt=True, series=None):
         h, err = self.h, self.err

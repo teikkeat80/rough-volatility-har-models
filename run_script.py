@@ -17,8 +17,8 @@ class HARK2:
         self.h = h
     
     def construct_z(self, n):
-        self.j = math.floor(2 * n ** math.log(1 + self.h) * math.log(n))
-        self.FBM_CONSTANT = math.sqrt((math.pi * self.h * ((2 * self.h) - 1)) / math.gamma(2 - (2 * self.h)) * math.gamma(self.h + .5) ** 2 * math.sin(math.pi * (self.h - .5)))
+        self.j = math.floor(2 * n ** math.log(1 + 0.25) * math.log(n))
+        self.FBM_CONSTANT = math.sqrt((math.pi * self.h * (2 * self.h - 1)) / (math.gamma(2 - (2 * self.h)) * math.gamma(self.h + .5) ** 2 * math.sin(math.pi * (self.h - .5))))
         self.zeta_ratio = ((self.j ** (4 - 2 * (self.h + .5))) / (self.j ** ((- 2) * (self.h + .5)))) ** (1 / self.j)
         self.zetas = [(self.j ** ((- 2) * (self.h + .5))) * (self.zeta_ratio ** i) for i in range(self.j + 1)]
         self.c = np.array([integrate.quad(lambda x: self.FBM_CONSTANT * x ** (- self.h - .5) / math.gamma(.5 - self.h), self.zetas[i], self.zetas[i + 1])[0] for i in range(self.j)])

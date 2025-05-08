@@ -83,8 +83,9 @@ def run_analysis(rv):
     rhar_mod = Ols(np.log(dep), rhar_indep, rolling_window)
     rhar_rpred = rhar_mod.rol_predict()
     rhar_fpred = rhar_mod.fol_predict()
-    rhar_rpred = rhar_d.back_transform(rhar_rpred)
-    rhar_fpred = rhar_d.back_transform(rhar_fpred)
+    rhar_predvar = 4 * sum([rhar_d.cond_var() * rhar_d.nu ** 2, rhar_w.cond_var() * rhar_w.nu ** 2, rhar_m.cond_var() * rhar_m.nu ** 2])
+    rhar_rpred = np.exp(rhar_rpred + rhar_predvar / 2)
+    rhar_fpred = np.exp(rhar_fpred + rhar_predvar / 2)
 
     print('har model predicting.............')
     har_indep = np.array([har_x_d, har_x_w, har_x_m]).T
