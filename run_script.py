@@ -78,7 +78,7 @@ def log_likelihood(params, rv):
 # Load Data
 # indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
 indices = ['SPX']
-path = '/Users/teikkeattee/Workplace/UM_MSC_STATS/UM_STATS_Research_Project/Project_Placeholder/data/rv_dataset.csv'
+path = 'C:\\Users\\teikkeattee\\ProjProg\\rv_dataset.csv'
 df = pd.read_csv(path)
 dict = df.iloc[:, 1:].to_dict(orient='list')
 columns = ['iteration', 'b0', 'b1', 'b2', 'b3', 'q', 'r', 'h', 'loglik', 'predicted', 'var', 'actual']
@@ -92,7 +92,7 @@ for idx in indices:
     log_rv = log_rv[-505:]
 
     # Output file path
-    output_file = f'/Users/teikkeattee/Workplace/UM_MSC_STATS/UM_STATS_Research_Project/Project_Placeholder/fcst_result/HARK2_{idx}_FCST.csv'
+    output_file = f'C:\\Users\\teikkeattee\\ProjProg\\HARK2_{idx}_FCST.csv'
 
     # Determine where to resume from (if file already exists)
     if os.path.exists(output_file):
