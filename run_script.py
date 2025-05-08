@@ -14,7 +14,7 @@ class HARK2:
         self.b3 = b3
         self.q = q ** 2
         self.r = r ** 2
-        self.h = np.clip(h, 0.001, 0.999)
+        self.h = 1 / (1 + np.exp(- h))
     
     def construct_z(self, n):
         self.j = math.floor(2 * n ** math.log(1 + 0.25) * math.log(n))     # change h to 0.25?
@@ -121,7 +121,7 @@ for idx in indices:
                 initial_params,
                 args=(series),
                 method='Nelder-Mead',
-                options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 2000}
+                options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 4000}
             )
 
             # Record Estimation Result

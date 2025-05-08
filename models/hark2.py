@@ -8,6 +8,8 @@ import pickle
 from time import time
 from hurst import Hurst
 
+print('-----------------------------------------')
+
 class HARK2:
     def __init__(self, b0, b1, b2, b3, q, r, h):
         self.b0 = b0
@@ -16,7 +18,7 @@ class HARK2:
         self.b3 = b3
         self.q = q ** 2
         self.r = r ** 2
-        self.h = np.clip(h, 0.001, 0.999)
+        self.h = 1 / (1 + np.exp(- h))
     
     def construct_z(self, n):
         self.j = math.floor(2 * n ** math.log(1 + 0.25) * math.log(n))     # change h to 0.25?
