@@ -12,8 +12,8 @@ class HARK2:
         self.b1 = b1
         self.b2 = b2
         self.b3 = b3
-        self.q = q ** 2
-        self.r = r ** 2
+        self.q = np.exp(q)
+        self.r = np.exp(r)
         self.h = 1 / (1 + np.exp(- h))
     
     def construct_z(self, n):
@@ -77,7 +77,7 @@ def log_likelihood(params, rv):
 
 # Load Data
 # indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
-indices = ['SPX']
+indices = ["SPX", "GDAXI", "FCHI", "FTSE"]
 path = 'C:\\Users\\teikkeattee\\ProjProg\\rv_dataset.csv'
 df = pd.read_csv(path)
 dict = df.iloc[:, 1:].to_dict(orient='list')
