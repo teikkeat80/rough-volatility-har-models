@@ -36,7 +36,7 @@ class HARK:
         self.p = p_pred
         return a_pred, p_pred
     
-    def update(self, obs, r):
+    def update(self, obs):
         r = self.r
         v = obs - self.m @ self.a
         f = self.m @ self.p @ self.m.T + r

@@ -2,7 +2,6 @@ import numpy as np
 from scipy.optimize import minimize
 import math
 import pandas as pd
-import scipy.integrate as integrate
 from time import time
 import os
 
@@ -12,8 +11,8 @@ class HARK:
         self.b1 = b1
         self.b2 = b2
         self.b3 = b3
-        self.q = q ** 2
-        self.r = r ** 2
+        self.q = np.exp(q)
+        self.r = np.exp(r)
 
     def construct_kf(self):
         self.k = np.vstack((np.array([self.b0]), np.zeros((21, 1))))
@@ -80,7 +79,7 @@ for idx in indices:
     log_rv = np.log(rv)
 
     # Output file path
-    output_file = f'C:\\Users\\teikkeattee\\ProjProg\\HARK2_{idx}_FCST.csv'
+    output_file = f'C:\\Users\\teikkeattee\\ProjProg\\HARK_{idx}_FCST.csv'
 
     # Determine where to resume from (if file already exists)
     if os.path.exists(output_file):
