@@ -12,9 +12,9 @@ class HARK2:
         self.b1 = b1
         self.b2 = b2
         self.b3 = b3
-        self.q = np.exp(q)
-        self.r = np.exp(r)
-        self.h = 1 / (1 + np.exp(- h))
+        self.q = q ** 2
+        self.r = r ** 2
+        self.h = h
     
     def construct_z(self, n):
         self.j = math.floor(2 * n ** math.log(1 + 0.25) * math.log(n))     # change h to 0.25?
@@ -78,7 +78,7 @@ def log_likelihood(params, rv):
 # Load Data
 # indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
 indices = ["SPX", "GDAXI", "FCHI", "FTSE"]
-path = 'C:\\Users\\teikkeattee\\ProjProg\\rv_dataset.csv'
+path = '/Users/teikkeattee/Workplace/UM_MSC_STATS/UM_STATS_Research_Project/Project_Placeholder/data/rv_dataset.csv'
 df = pd.read_csv(path)
 dict = df.iloc[:, 1:].to_dict(orient='list')
 columns = ['iteration', 'b0', 'b1', 'b2', 'b3', 'q', 'r', 'h', 'loglik', 'predicted', 'var', 'actual']
@@ -89,10 +89,10 @@ for idx in indices:
     log_rv = np.log(rv)
 
     # Select subset
-    log_rv = log_rv[-505:]
+    log_rv = log_rv[-1005:]
 
     # Output file path
-    output_file = f'C:\\Users\\teikkeattee\\ProjProg\\HARK2_{idx}_FCST.csv'
+    output_file = f'/Users/teikkeattee/Workplace/UM_MSC_STATS/UM_STATS_Research_Project/Project_Placeholder/fcst_result/HARK2_{idx}_FCST.csv'
 
     # Determine where to resume from (if file already exists)
     if os.path.exists(output_file):
@@ -104,7 +104,7 @@ for idx in indices:
         pd.DataFrame(columns=columns).to_csv(output_file, index=False)
 
     # Initialise Parameters
-    window = 500
+    window = 1000
     initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1]
 
     for i in range(start_iter, len(log_rv) - window):
@@ -121,7 +121,7 @@ for idx in indices:
                 initial_params,
                 args=(series),
                 method='Nelder-Mead',
-                options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 2000}
+                options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 4000}
             )
 
             # Record Estimation Result

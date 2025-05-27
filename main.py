@@ -1,6 +1,6 @@
 from time import time
 import data_processing as dp
-from analysis import run_analysis
+from analysis_pone import run_analysis
 # from models.misc import Mse
 import visualisation as vis
 import pandas as pd
@@ -11,10 +11,10 @@ def main():
     # Load Data
     # rv = dp.load_rv('data/SP500_RQ_5min.csv')
     rv_all = dp.load_rv_all('data/rv_dataset.csv')
-    rv = dp.load_rv_one('data/rv_dataset.csv', '.SPX')
+    rv = dp.load_rv_one('data/rv_dataset.csv', '.FCHI')
     # # rv_ma5 = dp.ma_rv(rv, 5)
     # # rv_ma22 = dp.ma_rv(rv, 12)
-    rv_dict = {'SPX': rv}
+    rv_dict = {'FCHI': rv}
 
     # Plot all RVs
     # vis.plot_all_rv(rv_dict)

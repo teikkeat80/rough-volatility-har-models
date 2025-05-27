@@ -1,5 +1,5 @@
 from matplotlib import pyplot as plt
-from models.hurst import Hurst
+from hurst import Hurst
 import numpy as np
 
 def plot_scaling_diagram(h_instance: Hurst):
