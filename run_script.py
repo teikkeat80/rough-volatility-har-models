@@ -78,7 +78,7 @@ def log_likelihood(params, h, rv):
 
 # Load Data
 # indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
-indices = ["SPX", "GDAXI", "FCHI", "FTSE"]
+indices = ["KS11"]
 path = 'C:\\Users\\teikkeattee\\ProjProg\\rv_dataset.csv'
 df = pd.read_csv(path)
 dict = df.iloc[:, 1:].to_dict(orient='list')

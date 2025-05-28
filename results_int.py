@@ -21,7 +21,7 @@ indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
 timeframe = 500
 
 for ix in indices:
-    with open(f'estm2_result/HARK2_{ix}_EST.pickle', 'rb') as file:
+    with open(f'estm_result/HARK2_{ix}_EST.pickle', 'rb') as file:
         result = pickle.load(file)
         print(ix)
         print("-------------------------")
