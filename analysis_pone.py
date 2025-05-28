@@ -107,15 +107,16 @@ def run_analysis(rv):
     lrhar_mod = Ols(ldep, lrhar_indep, rolling_window)
     lrhar_rpred = lrhar_mod.rol_predict()
     lrhar_fpred = lrhar_mod.fol_predict()
-    lrhar_predvar = 4 * sum([rhar_d.cond_var() * rhar_d.nu ** 2, rhar_w.cond_var() * rhar_w.nu ** 2, rhar_m.cond_var() * rhar_m.nu ** 2])
-    lrhar_rpred = np.exp(lrhar_rpred + lrhar_predvar / 2)
-    lrhar_fpred = np.exp(lrhar_fpred + lrhar_predvar / 2)
+    lrhar_rpred = np.exp(lrhar_rpred + lrhar_mod.rol_res_var() / 2)
+    lrhar_fpred = np.exp(lrhar_fpred + lrhar_mod.fol_res_var() / 2)
 
     print('log_har model predicting.............')
     lhar_indep = np.array([lhar_x_d, lhar_x_w, lhar_x_m]).T
     lhar_mod = Ols(ldep, lhar_indep, rolling_window)
     lhar_rpred = lhar_mod.rol_predict()
     lhar_fpred = lhar_mod.fol_predict()
+    lhar_rpred = np.exp(lhar_rpred + lhar_mod.rol_res_var() / 2)
+    lhar_fpred = np.exp(lhar_fpred + lhar_mod.fol_res_var() / 2)
 
     # In sample estimation
     print('In sample estimation.............')
@@ -131,10 +132,12 @@ def run_analysis(rv):
     lhar_mod.fols(pr=True)
     lhar_ise_rmse = rmse(y, lhar_fpred)
 
+    print('.......................................................')
     print(f"RHAR In Sample rmse: {round(rhar_ise_rmse, 6)}")
     print(f"HAR In Sample rmse: {round(har_ise_rmse, 6)}")
     print(f"lRHAR In Sample rmse: {round(lrhar_ise_rmse, 6)}")
     print(f"lHAR In Sample rmse: {round(lhar_ise_rmse, 6)}")
+    print('.......................................................')
 
     # Out of sample analysis
     print('Out of sample analysis.............')
@@ -166,23 +169,30 @@ def run_analysis(rv):
     roughvol_osa_qlike = qlike(actual, roughvol_predicted)
     roughvol_osa_mae = mae(actual, roughvol_predicted)
 
+    print('......................RMSE.............................')
     print(f"RHAR Out of Sample rmse: {round(rhar_osa_rmse, 6)}")
     print(f"HAR Out of Sample rmse: {round(har_osa_rmse, 6)}")
     print(f"lRHAR Out of Sample rmse: {round(lrhar_osa_rmse, 6)}")
     print(f"lHAR Out of Sample rmse: {round(lhar_osa_rmse, 6)}")
     print(f"Rough Volatility Out of Sample rmse: {round(roughvol_osa_rmse, 6)}")
+    print('.......................................................')
 
+    print('..................QLIKE................................')
     print(f"RHAR Out of Sample qlike: {round(rhar_osa_qlike, 6)}")
     print(f"HAR Out of Sample qlike: {round(har_osa_qlike, 6)}")
     print(f"lRHAR Out of Sample qlike: {round(lrhar_osa_qlike, 6)}")
     print(f"lHAR Out of Sample qlike: {round(lhar_osa_qlike, 6)}")
     print(f"Rough Volatility Out of Sample qlike: {round(roughvol_osa_qlike, 6)}")
+    print('.......................................................')
 
+    print('........................MAE...........................')
     print(f"RHAR Out of Sample mae: {round(rhar_osa_mae, 6)}")
     print(f"HAR Out of Sample mae: {round(har_osa_mae, 6)}")
     print(f"lRHAR Out of Sample mae: {round(lrhar_osa_mae, 6)}")
     print(f"lHAR Out of Sample mae: {round(lhar_osa_mae, 6)}")
     print(f"Rough Volatility Out of Sample mae: {round(roughvol_osa_mae, 6)}")
+    print('.......................................................')
+    
     # vis.plot_comparison(actual, rhar_predicted, "rhar")
     # vis.plot_comparison(actual, har_predicted, "har")
     # vis.plot_comparison(actual, roughvol_predicted, "roughvol")

@@ -5,6 +5,7 @@ import pandas as pd
 import scipy.integrate as integrate
 from time import time
 import os
+import pickle
 
 class HARK2:
     def __init__(self, b0, b1, b2, b3, q, r, h):
@@ -58,8 +59,8 @@ class HARK2:
         self.p = p_upd
         return v, f, a_upd, p_upd
 
-def log_likelihood(params, rv):
-    b0, b1, b2, b3, q, r, h = params
+def log_likelihood(params, h, rv):
+    b0, b1, b2, b3, q, r = params
     x = HARK2(b0, b1, b2, b3, q, r, h)
     x.construct_z(len(rv))
     x.construct_kf()
@@ -84,12 +85,16 @@ dict = df.iloc[:, 1:].to_dict(orient='list')
 columns = ['iteration', 'b0', 'b1', 'b2', 'b3', 'q', 'r', 'h', 'loglik', 'predicted', 'var', 'actual']
 
 for idx in indices:
+
+    # Get h
+    with open(f'/Users/teikkeattee/Workplace/UM_MSC_STATS/UM_STATS_Research_Project/Project_Placeholder/estm_result/HARK2_{idx}_EST.pickle', 'rb') as file:
+        fe_result = pickle.load(file)
+    h = fe_result.x[-1]
+    print(h)
+
     # Load Data
     rv = dict[f'.{idx}']
     log_rv = np.log(rv)
-
-    # Select subset
-    log_rv = log_rv[-1005:]
 
     # Output file path
     output_file = f'/Users/teikkeattee/Workplace/UM_MSC_STATS/UM_STATS_Research_Project/Project_Placeholder/fcst_result/HARK2_{idx}_FCST.csv'
@@ -104,8 +109,8 @@ for idx in indices:
         pd.DataFrame(columns=columns).to_csv(output_file, index=False)
 
     # Initialise Parameters
-    window = 1000
-    initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1]
+    window = 500
+    initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1]
 
     for i in range(start_iter, len(log_rv) - window):
         start_time = time()
@@ -119,7 +124,7 @@ for idx in indices:
             result = minimize(
                 log_likelihood,
                 initial_params,
-                args=(series),
+                args=(h, series),
                 method='Nelder-Mead',
                 options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 4000}
             )
@@ -127,7 +132,7 @@ for idx in indices:
             # Record Estimation Result
             est_params = result.x
             loglik = - result.fun
-            b0, b1, b2, b3, q, r, h = est_params
+            b0, b1, b2, b3, q, r = est_params
 
             # Initialise Filter
             y = HARK2(b0, b1, b2, b3, q, r, h)
