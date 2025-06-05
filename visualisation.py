@@ -17,15 +17,12 @@ def plot_forecast(df, model):
     plt.grid(True)
     plt.show()
 
-def plot_comparison(actual, predicted, model):
+def plot_comparison(actual, predicted):
     plt.figure(figsize=(10, 6))
-    plt.plot(np.arange(len(actual)), actual, label='actual')
-    plt.plot(np.arange(len(predicted)), predicted, label=model)
-    plt.title(f'Forecast Plot of RV - {model}')
-    plt.xlabel('Date')
-    plt.ylabel('Values')
+    plt.plot(np.arange(len(actual)), actual, 'k-', label=r'$RV_t$', linestyle=(0, (3, 1, 1, 1)), lw=0.8)
+    plt.plot(np.arange(len(predicted)), predicted, 'r-', label=r'$\hat{RV_t}$')
+    plt.xlabel('Time')
     plt.legend()
-    plt.grid(True)
     plt.show()
 
 def plot_forecast_returns(df, model):

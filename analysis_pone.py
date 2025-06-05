@@ -192,10 +192,10 @@ def run_analysis(rv):
     print(f"lHAR Out of Sample mae: {round(lhar_osa_mae, 6)}")
     print(f"Rough Volatility Out of Sample mae: {round(roughvol_osa_mae, 6)}")
     print('.......................................................')
-    
-    # vis.plot_comparison(actual, rhar_predicted, "rhar")
-    # vis.plot_comparison(actual, har_predicted, "har")
-    # vis.plot_comparison(actual, roughvol_predicted, "roughvol")
+
+    vis.plot_comparison(actual, rhar_predicted)
+    vis.plot_comparison(actual, har_predicted)
+    vis.plot_comparison(actual, roughvol_predicted)
 
 
 
