@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 from hurst import Hurst
 from roughvol import RoughVolatility
 import visualisation as vis
@@ -39,9 +38,9 @@ def run_analysis(rv):
 
     # Plot scaling diagrams
     print('Generating Scaling Diagrams.............')
-    # vis.plot_scaling_diagram(hd)
-    # vis.plot_scaling_diagram(hw)
-    # vis.plot_scaling_diagram(hm)
+    vis.plot_scaling_diagram(hd)
+    vis.plot_scaling_diagram(hw)
+    vis.plot_scaling_diagram(hm)
 
     # Rough Volatility Predictions
     print('Training Data - Generate Rough Volatility Linear Predictions.............')

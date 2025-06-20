@@ -4,10 +4,10 @@ import sys
 # Bollerslev et al. (2016) data: start from 1999 consists of 4000+ records
 # Oxford Man Institute data: start from October 2006 to June 2022 consists of 2000+ records
 
-def load_rv(path):
+def load_rv(path, x):
     df_raw = pd.read_csv(path)
     df_sorted = df_raw.sort_values(by='Date', ignore_index=True)
-    rv = df_sorted['RQ'].tolist()
+    rv = df_sorted[x].tolist()
     return rv
 
 def load_rv_all(path):

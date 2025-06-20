@@ -7,7 +7,7 @@ class Hurst:
         if log:
             self.series = np.log(series)
         else:
-            self.series = series
+            self.series = np.array(series)
         self.q = q_list
         self.delta = np.arange(1, max_delta)
         self.log_delta = np.log(self.delta)

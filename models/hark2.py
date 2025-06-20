@@ -140,10 +140,10 @@ indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
 # indices = ["SPX"]
 # idx = indices[0]
 # log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
-for idx in indices:
-# log_rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV'))
-    log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
-# # rq = 2 * np.array(load_rv('data/SP500_RQ_5min.csv', 'RQ')) / np.exp(log_rv) ** 2
+# for idx in indices:
+log_rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV'))
+    # log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
+rq = (2 / 78) * (np.array(load_rv('data/SP500_RQ_5min.csv', 'RQ')) / np.exp(log_rv) ** 2)
 
 ############################
 #        SIMULATION        #
@@ -227,41 +227,42 @@ for idx in indices:
 # def callback(params):
 #     print(f"Current Params: {params}, Current LL: {log_likelihood(params, h, log_rv)}")
 
-    # initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1]
-    # # initial_params = [ 0.0006,  0.2599,  0.3766,  0.3636,  0.1100,  0.0327,  0.1612]
-    # # init_ll = log_likelihood(initial_params, log_rv) 
-    # # print(f"initial likelihood: {init_ll}")
+# initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1]
+# # initial_params = [ 0.0006,  0.2599,  0.3766,  0.3636,  0.1100,  0.0327,  0.1612]
+# # init_ll = log_likelihood(initial_params, log_rv) 
+# # print(f"initial likelihood: {init_ll}")
 
-    # start_time = time()
-    # result = minimize(
-    #     log_likelihood,
-    #     initial_params,
-    #     args=(log_rv),
-    #     method='Nelder-Mead',
-    #     options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 4000}  ## NM['xatol': 1e-6, 'fatol': 1e-3] | BGFS['eps': 1e-3, 'xrtol': 1e-3]
-    # )
-    # end_time = time()
+# start_time = time()
+# result = minimize(
+#     log_likelihood,
+#     initial_params,
+#     args=(log_rv),
+#     method='Nelder-Mead',
+#     options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 6000}  ## NM['xatol': 1e-6, 'fatol': 1e-3] | BGFS['eps': 1e-3, 'xrtol': 1e-3]
+# )
+# end_time = time()
 
-    # est_params = result.x
-    # final_ll = - result.fun
-    # aic = (2 * len(initial_params)) - (2 * final_ll)
-    # print(idx)
-    # print("-------------------------")
-    # print(result)
-    # np.set_printoptions(suppress=True)
-    # print('Estimated Params: ', np.round(est_params, 4))
-    # print('AIC: ', aic)
-    # with open(f'estm_result/HARK2_{idx}_EST.pickle', 'wb') as file:
-    #     pickle.dump(result, file)
+# with open(f'premestm_result/HARK2_RV_EST.pickle', 'wb') as file:
+#     pickle.dump(result, file)
 
-    # print(f"Elapsed time: {end_time - start_time} seconds")
+# est_params = result.x
+# final_ll = - result.fun
+# aic = (2 * len(initial_params)) - (2 * final_ll)
+# # print(idx)
+# print("-------------------------")
+# print(result)
+# np.set_printoptions(suppress=True)
+# print('Estimated Params: ', np.round(est_params, 4))
+# print('AIC: ', aic)
+
+# print(f"Elapsed time: {end_time - start_time} seconds")
 
 ############################
 #    ESTIMATION RESULT     #
 ############################
 
 # for ix in indices:
-# with open(f'result/HARK2_{idx}_FULL_EST_WOLA.pickle', 'rb') as file:
+# with open(f'premestm_result/HARK_FULL_EST_WOLA.pickle', 'rb') as file:
 #     result = pickle.load(file)
 #     print(idx)
 #     print("-------------------------")

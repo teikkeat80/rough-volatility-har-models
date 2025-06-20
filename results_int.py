@@ -7,7 +7,8 @@ from matplotlib import pyplot as plt
 import pickle
 from time import time
 from hurst import Hurst
-from misc import rmse
+from misc import rmse, qlike, mae
+import visualisation as viz
 
 indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
 # indices = ["SPX"]
@@ -15,42 +16,40 @@ indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
 # log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
 # for idx in indices:
 # # log_rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV'))
-#     log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
+    # log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
 # # rq = 2 * np.array(load_rv('data/SP500_RQ_5min.csv', 'RQ')) / np.exp(log_rv) ** 2
 
-timeframe = 500
+# timeframe = 500
 
-for ix in indices:
-    with open(f'estm_result/HARK2_{ix}_EST.pickle', 'rb') as file:
-        result = pickle.load(file)
-        print(ix)
-        print("-------------------------")
-        print(result)
+# for ix in indices:
+# with open(f'estm_result/HARK_SPX_EST.pickle', 'rb') as file:
+#     result = pickle.load(file)
+# print("-------------------------")
+# print(result)
+# np.set_printoptions(suppress=True)
+# print('Estimated Params: ', np.round(result.x, 4))
+# print('LL: ', np.round(- result.fun, 4))
+# print('AIC: ', np.round(2 * len(result.x) - 2 * (- result.fun), 4))
 
-    # dfhark = pd.read_csv(f'fcst2_result/HARK_{ix}_FCST.csv')
-    # dfhark2 = pd.read_csv(f'fcst2_result/HARK2_{ix}_FCST.csv')
+dfhark = pd.read_csv(f'isa_result/HARK2_RV_FCST.csv')
 
-    # predictedhark2 = dfhark2['predicted'].values[-timeframe:]
-    # actualhark2 = dfhark2['actual'].values[-timeframe:]
-    
-    # predictedhark = dfhark['predicted'].values[-timeframe:]
-    # actualhark = dfhark['actual'].values[-timeframe:]
+variancehark = np.array(dfhark['var'].values)
+rhark = np.array(dfhark['r'].values) ** 2
+# rhark = 0
+predictedhark = dfhark['predicted'].values
+actualhark = dfhark['actual'].values
 
-    # rmsehark2 = rmse(actualhark2, predictedhark2)
-    # print(f"{ix} HARK2 Out of Sample rmse: {round(rmsehark2, 6)}")
+rvpredictedhark = np.exp(predictedhark + ((variancehark + rhark) / 2))
+rvactualhark = np.exp(actualhark)
 
-    # rmsehark = rmse(actualhark, predictedhark)
-    # print(f"{ix} HARK Out of Sample rmse: {round(rmsehark, 6)}")  
+# RMSE
+rmsehark = rmse(rvactualhark, rvpredictedhark)
+print(f"rmse: {round(rmsehark, 4)}")
+# QLIKE
+qlikehark = qlike(rvactualhark, rvpredictedhark)
+print(f"qlike: {round(qlikehark, 4)}")
+# # MAE
+# maehark = mae(rvactualhark, rvpredictedhark)
+# print(f"mae: {round(maehark * 1e3, 4)}")  
 
-    # if rmsehark2 < rmsehark:
-    #     print('success')
-
-    # param = 1 / (1 + np.exp(- dfhark2['h'].values))
-    # print(np.mean(param))
-
-    # plt.figure(figsize=(10, 6))
-    # plt.plot(param)
-    # plt.xlabel('Time')
-    # plt.ylabel('Values')
-    # plt.grid(True)
-    # plt.show()
+viz.plot_comparison(rvactualhark, rvpredictedhark)

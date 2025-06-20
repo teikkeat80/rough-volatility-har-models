@@ -9,7 +9,7 @@ from time import time
 from hurst import Hurst
 from misc import rmse
 import hark
-import hark2
+from hark2 import HARK2, log_likelihood_hark2
 
 def run_hark2_analysis(ix, rv):
 
@@ -25,7 +25,7 @@ def run_hark2_analysis(ix, rv):
     sim_q = 0.3
     sim_r = 0.1
     sim_h = 0.2
-    sim_y = hark2.HARK2(sim_b0, sim_b1, sim_b2, sim_b3, sim_q, sim_r, sim_h)
+    sim_y = HARK2(sim_b0, sim_b1, sim_b2, sim_b3, sim_q, sim_r, sim_h)
     sim_state, sim_zfilt, sim_ivfilt, sim_obs = sim_y.simulate(10000, np.mean(log_rv))
     sim_obs = sim_obs[-1000:]
     sim_zfilt = sim_zfilt[-1000:]
@@ -60,7 +60,7 @@ def run_hark2_analysis(ix, rv):
     init_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1]
 
     est = minimize(
-        hark2.log_likelihood,
+        log_likelihood_hark2,
         init_params,
         args=(log_rv),
         method='Nelder-Mead',
@@ -83,8 +83,9 @@ def run_hark2_analysis(ix, rv):
     print('HARK2 Estimated Params: ', np.round(est_params, 4))
     print('HARK2 AIC: ', aic)
 
+    # In sample predictions
     est_b0, est_b1, est_b2, est_b3, est_q, est_r, est_h = est_params
-    est_y = hark2.HARK2(est_b0, est_b1, est_b2, est_b3, est_q, est_r, est_h)
+    est_y = HARK2(est_b0, est_b1, est_b2, est_b3, est_q, est_r, est_h)
     est_y.construct_z(len(log_rv))
     est_y.construct_kf()
     est_y.initialise_a(mean=np.mean(log_rv))
@@ -310,3 +311,5 @@ def run_hark_analysis(ix, rv):
 
     fc_rmse = rmse(fc_actual_full, fc_predicted_full)
     print(f"{ix} HARK Out of Sample RMSE: {round(fc_rmse, 6)}")
+
+

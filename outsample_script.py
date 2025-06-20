@@ -1,6 +1,11 @@
 import numpy as np
+from scipy.optimize import minimize
 import math
+import pandas as pd
+from time import time
+import os
 import scipy.integrate as integrate
+import pickle
 
 class HARK2:
     def __init__(self, b0, b1, b2, b3, q, r, h):
@@ -53,32 +58,9 @@ class HARK2:
         self.a = a_upd
         self.p = p_upd
         return v, f, a_upd, p_upd
-    
-    def simulate(self, n, mean):
-        self.construct_z(n)
-        self.construct_kf()
-        self.initialise_a(mean)
-        state = []
-        state.append(self.a)
-        obs = []
-        obs.append((self.m @ self.a + np.random.normal(0, self.r)).item())
-        zfilt = []
-        zfilt.append((self.m[:, :self.j] @ self.a[:self.j, :]).item())
-        ivfilt = []
-        ivfilt.append((self.m[:, -22:] @ self.a[-22:, :]).item())
-        for _ in range(n - 1):
-            self.a = self.k + self.t @ self.a + self.g @ np.random.multivariate_normal(np.zeros(self.j + 22), self.Q).reshape(self.j + 22, 1)
-            state.append(self.a)
-            rv = self.m @ self.a + np.random.normal(0, self.r)
-            z = self.m[:, :self.j] @ self.a[:self.j, :]
-            iv = self.m[:, -22:] @ self.a[-22:, :]
-            obs.append(rv.item())
-            zfilt.append(z.item())
-            ivfilt.append(iv.item())       
-        return state, zfilt, ivfilt, obs
 
-def log_likelihood_hark2(params, rv):
-    b0, b1, b2, b3, q, r, h = params
+def log_likelihood_hark2(params, h, rv):
+    b0, b1, b2, b3, q, r = params
     x = HARK2(b0, b1, b2, b3, q, r, h)
     x.construct_z(len(rv))
     x.construct_kf()
@@ -93,3 +75,100 @@ def log_likelihood_hark2(params, rv):
 
     ll = - (22 / 2) * len(rv) * math.log(2 * math.pi) - (1 / 2) * sum_ll
     return -ll
+
+# Load Data
+rv_path = '/Users/teikkeattee/Workplace/UM_MSC_STATS/UM_STATS_Research_Project/Project_Placeholder/data/SNP500_RV_5min.csv'
+rv_df = pd.read_csv(rv_path).sort_values(by='Date', ignore_index=True)
+rv = rv_df['RV'].tolist()[-1500:]
+log_rv = np.log(rv)
+
+# Get h
+with open('/Users/teikkeattee/Workplace/UM_MSC_STATS/UM_STATS_Research_Project/Project_Placeholder/estm_result/HARK2_RV_EST.pickle', 'rb') as file:
+    fe_result = pickle.load(file)
+h = fe_result.x[-1]
+print(h)
+
+# Output file path
+output_file = '/Users/teikkeattee/Workplace/UM_MSC_STATS/UM_STATS_Research_Project/Project_Placeholder/osa_result/HARK2_RV_FCST.csv'
+columns = ['iteration', 'b0', 'b1', 'b2', 'b3', 'q', 'r', 'h', 'loglik', 'predicted', 'var', 'actual']
+
+# Determine where to resume from (if file already exists)
+if os.path.exists(output_file):
+    existing_df = pd.read_csv(output_file)
+    start_iter = existing_df['iteration'].max() + 1
+else:
+    start_iter = 0
+    # Write header if file doesn't exist
+    pd.DataFrame(columns=columns).to_csv(output_file, index=False)
+
+# Initialise Parameters
+window = 500
+initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1]
+
+for i in range(start_iter, len(log_rv) - window):
+    start_time = time()
+    print(f'iteration {i}')
+
+    try:
+        # Select window
+        series = log_rv[i: window + i]
+
+        # Estimation
+        result = minimize(
+            log_likelihood_hark2,
+            initial_params,
+            args=(h, series),
+            method='Nelder-Mead',
+            options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 4000}
+        )
+
+        # Record Estimation Result
+        est_params = result.x
+        loglik = - result.fun
+        b0, b1, b2, b3, q, r = est_params
+
+        # Initialise Filter
+        y = HARK2(b0, b1, b2, b3, q, r, h)
+        y.construct_z(len(series))
+        y.construct_kf()
+        y.initialise_a(mean=np.mean(series))
+        y.initialise_p(var_iv=np.var(series), var_z=0.001)
+
+        # Run filter
+        for l in range(len(series)):
+            y.predict()
+            y.update(series[l])
+
+        # Generate prediction and record actual
+        a_pred, p_pred = y.predict()
+        predicted = (y.m @ a_pred).item()
+        var = (y.m @ p_pred @ y.m.T).item()
+        actual = log_rv[window + i]
+
+        # Combine into rows
+        row = pd.DataFrame([{
+            'iteration': i,
+            'b0': b0,
+            'b1': b1,
+            'b2': b2,
+            'b3': b3,
+            'q': q,
+            'r': r,
+            'h': h,
+            'loglik': loglik,
+            'predicted': predicted,
+            'var': var,
+            'actual': actual
+        }])
+
+        # Append to csv
+        row.to_csv(output_file, mode='a', index=False, header=False)
+    
+    except Exception as e:
+        print(f'Error at iteration{i}: {e}')
+        continue
+        
+    # Record Time
+    end_time = time()
+    print(f"Elapsed time: {end_time - start_time} seconds")
+

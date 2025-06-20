@@ -44,7 +44,7 @@ class HARK:
         self.p = p_upd
         return v, f, a_upd, p_upd
 
-def log_likelihood(params, rv): 
+def log_likelihood_harkred(params, rv): 
     b0, b1, b2, b3, q, r = params
     x = HARK(b0, b1, b2, b3, q, r)
     x.construct_kf()
@@ -55,6 +55,22 @@ def log_likelihood(params, rv):
     for t in range(len(rv)):
         x.predict()
         v, f, _, _ = x.update(rv[t])
+        sum_ll += math.log(abs(f)) + v.T @ np.linalg.inv(f) @ v
+
+    ll = - (22 / 2) * len(rv) * math.log(2 * math.pi) - (1 / 2) * sum_ll
+    return -ll
+
+def log_likelihood_hark(params, rv, rq): 
+    b0, b1, b2, b3, q = params
+    x = HARK(b0, b1, b2, b3, q, 1) # dummy r
+    x.construct_kf()
+    x.initialise_a(np.mean(rv))
+    x.initialise_p(np.var(rv))
+    sum_ll = 0
+
+    for t in range(len(rv)):
+        x.predict()
+        v, f, _, _ = x.update(rv[t], rq[t])
         sum_ll += math.log(abs(f)) + v.T @ np.linalg.inv(f) @ v
 
     ll = - (22 / 2) * len(rv) * math.log(2 * math.pi) - (1 / 2) * sum_ll
