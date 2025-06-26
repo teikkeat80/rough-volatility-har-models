@@ -30,12 +30,12 @@ for hurst in hurst_set:
 
     fbmapp = FBMAPP(hurst, 10000)
     fbmapp_sp = fbmapp.simulate()[-1000:]
-    fbmcls = FBM(n=1000, hurst=hurst, length=1000, method='cholesky')
-    fbmcls_sp = fbmcls.fbm()
-    fbmdh = FBM(n=1000, hurst=hurst, length=1000, method='daviesharte')
-    fbmdh_sp = fbmdh.fbm()
+    # fbmcls = FBM(n=1000, hurst=hurst, length=1000, method='cholesky')
+    # fbmcls_sp = fbmcls.fbm()
+    # fbmdh = FBM(n=1000, hurst=hurst, length=1000, method='daviesharte')
+    # fbmdh_sp = fbmdh.fbm()
 
     vis.plot_series(fbmapp_sp, r'$W^H_t$')
-    vis.plot_series(fbmcls_sp, r'$W^H_t$')
-    vis.plot_series(fbmdh_sp, r'$W^H_t$')
+    # vis.plot_series(fbmcls_sp, r'$W^H_t$')
+    # vis.plot_series(fbmdh_sp, r'$W^H_t$')
 

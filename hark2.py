@@ -30,7 +30,7 @@ class HARK2:
     def initialise_a(self, mean):
         self.a = np.concatenate([np.zeros(self.j), np.ones(22) * mean]).reshape(self.j + 22, 1)
     
-    def initialise_p(self, var_iv, var_z=1):
+    def initialise_p(self, var_iv, var_z=0.001):
         self.p = np.diag(np.concatenate([np.ones(self.j) * var_z, np.ones(22) * var_iv]))
     
     def predict(self):
