@@ -32,7 +32,7 @@ class HARK2:
         if extended:
             self.k = np.vstack((np.zeros((self.j, 1)), np.array([self.b0]), np.zeros((21, 1))))
             self.t = np.vstack((np.hstack((np.diag(np.exp(- self.kappa)), np.zeros((self.j, 22)))), np.hstack((np.zeros((22, self.j)), np.vstack((np.array([self.b1] + [self.b2 / 4] * 4 + [self.b3 / 17] * 17), np.hstack((np.eye(21), np.zeros((21, 1))))))))))
-            self.Q = np.diag([1] * self.j + [self.q] + [0] * 21)
+            self.Q = np.vstack((np.hstack((np.ones((self.j, self.j)), np.zeros((self.j, 22)))), np.hstack((np.zeros((22, self.j)), np.diag([self.q] + [0] * 21)))))
             self.g = np.diag(np.concatenate([np.sqrt((1 - np.exp(- 2 * self.kappa)) / (2 * self.kappa)), np.ones(22)]))
             self.m = np.concatenate([self.c, np.ones(1), np.zeros(21)]).reshape(1, self.j + 22)
         else:
@@ -227,35 +227,35 @@ rq = (2 / 78) * (np.array(load_rv('data/SP500_RQ_5min.csv', 'RQ')) / np.exp(log_
 # def callback(params):
 #     print(f"Current Params: {params}, Current LL: {log_likelihood(params, h, log_rv)}")
 
-# initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1]
-# # initial_params = [ 0.0006,  0.2599,  0.3766,  0.3636,  0.1100,  0.0327,  0.1612]
-# # init_ll = log_likelihood(initial_params, log_rv) 
-# # print(f"initial likelihood: {init_ll}")
+initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1]
+# initial_params = [ 0.0006,  0.2599,  0.3766,  0.3636,  0.1100,  0.0327,  0.1612]
+# init_ll = log_likelihood(initial_params, log_rv) 
+# print(f"initial likelihood: {init_ll}")
 
-# start_time = time()
-# result = minimize(
-#     log_likelihood,
-#     initial_params,
-#     args=(log_rv),
-#     method='Nelder-Mead',
-#     options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 6000}  ## NM['xatol': 1e-6, 'fatol': 1e-3] | BGFS['eps': 1e-3, 'xrtol': 1e-3]
-# )
-# end_time = time()
+start_time = time()
+result = minimize(
+    log_likelihood,
+    initial_params,
+    args=(log_rv),
+    method='Nelder-Mead',
+    options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 6000}  ## NM['xatol': 1e-6, 'fatol': 1e-3] | BGFS['eps': 1e-3, 'xrtol': 1e-3]
+)
+end_time = time()
 
-# with open(f'premestm_result/HARK2_RV_EST.pickle', 'wb') as file:
-#     pickle.dump(result, file)
+with open(f'premestm_result/HARK2QC_RV_EST.pickle', 'wb') as file:
+    pickle.dump(result, file)
 
-# est_params = result.x
-# final_ll = - result.fun
-# aic = (2 * len(initial_params)) - (2 * final_ll)
-# # print(idx)
-# print("-------------------------")
-# print(result)
-# np.set_printoptions(suppress=True)
-# print('Estimated Params: ', np.round(est_params, 4))
-# print('AIC: ', aic)
+est_params = result.x
+final_ll = - result.fun
+aic = (2 * len(initial_params)) - (2 * final_ll)
+# print(idx)
+print("-------------------------")
+print(result)
+np.set_printoptions(suppress=True)
+print('Estimated Params: ', np.round(est_params, 4))
+print('AIC: ', aic)
 
-# print(f"Elapsed time: {end_time - start_time} seconds")
+print(f"Elapsed time: {end_time - start_time} seconds")
 
 ############################
 #    ESTIMATION RESULT     #

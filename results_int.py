@@ -31,25 +31,25 @@ rq = (2 / 78) * np.array(load_rv('data/SP500_RQ_5min.csv', 'RQ')) / np.exp(log_r
 # print('LL: ', np.round(- result.fun, 4))
 # print('AIC: ', np.round(2 * len(result.x) - 2 * (- result.fun), 4))
 
-# dfhark = pd.read_csv(f'osa_result/HARK_RV_FCST.csv').iloc[-500:]
+dfhark = pd.read_csv(f'osa_result/HARK_RVRQ_FCST.csv').iloc[-1000:]
 
-# variancehark = np.array(dfhark['var'].values)
+variancehark = np.array(dfhark['var'].values)
 # rhark = np.array(dfhark['r'].values) ** 2
-# # rhark = 0
-# predictedhark = dfhark['predicted'].values
-# actualhark = dfhark['actual'].values
+rhark = 0
+predictedhark = dfhark['predicted'].values
+actualhark = dfhark['actual'].values
 
-# rvpredictedhark = np.exp(predictedhark + ((variancehark + rhark) / 2))
-# rvactualhark = np.exp(actualhark)
+rvpredictedhark = np.exp(predictedhark + ((variancehark + rhark) / 2))
+rvactualhark = np.exp(actualhark)
 
-# # RMSE
-# rmsehark = rmse(rvactualhark, rvpredictedhark)
-# print(f"rmse: {round(rmsehark, 4)}")
-# # QLIKE
-# qlikehark = qlike(rvactualhark, rvpredictedhark)
-# print(f"qlike: {round(qlikehark, 4)}")
-# # MAE
-# maehark = mae(rvactualhark, rvpredictedhark)
-# print(f"mae: {round(maehark, 4)}")  
+# RMSE
+rmsehark = rmse(rvactualhark, rvpredictedhark)
+print(f"rmse: {round(rmsehark, 4)}")
+# QLIKE
+qlikehark = qlike(rvactualhark, rvpredictedhark)
+print(f"qlike: {round(qlikehark, 4)}")
+# MAE
+maehark = mae(rvactualhark, rvpredictedhark)
+print(f"mae: {round(maehark, 4)}")  
 
-# viz.plot_comparison(rvactualhark, rvpredictedhark)
+viz.plot_comparison(rvactualhark, rvpredictedhark)
