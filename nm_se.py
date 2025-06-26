@@ -18,7 +18,7 @@ def nelder_mead_se(function, result_path, **kwargs):
 
     for i in range(n + 1):
         for j in range(n + 1):
-            new_coord[i, j] = function(params=midpoint[i, j], rv=kwargs['series'], rq=kwargs['rq'])
+            new_coord[i, j] = function(params=midpoint[i, j], rv=kwargs['series'])
 
     b_mat = np.empty((n, n))
 
@@ -60,8 +60,8 @@ def nelder_mead_se(function, result_path, **kwargs):
 # for idx in indices:
 log_rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV'))
 rq = (2 / 78) * (np.array(load_rv('data/SP500_RQ_5min.csv', 'RQ')) / np.exp(log_rv) ** 2)
-result_path = f'premestm_result/HARK_RVRQ_EST.pickle'
-se = nelder_mead_se(log_likelihood_hark, result_path, series=log_rv, rq=rq)
+result_path = f'premestm_result/HARK2QC_RV_EST.pickle'
+se = nelder_mead_se(log_likelihood_hark2, result_path, series=log_rv)
 # print(idx)
 print('------------------------------')
 print(se)

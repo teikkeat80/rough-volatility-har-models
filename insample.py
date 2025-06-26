@@ -8,24 +8,23 @@ import pandas as pd
 log_rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV'))
 rq = (2 / 78) * (np.array(load_rv('data/SP500_RQ_5min.csv', 'RQ')) / np.exp(log_rv) ** 2)
 
-with open(f'premestm_result/HARK_RV_EST.pickle', 'rb') as file:
+with open(f'premestm_result/HARK2QC_RV_EST.pickle', 'rb') as file:
     result = pickle.load(file)
     print(result)
 
-b0, b1, b2, b3, q = result.x
+b0, b1, b2, b3, q, r, h = result.x
 
-columns = ['iteration', 'predicted', 'var', 'actual']
+columns = ['iteration', 'r', 'predicted', 'var', 'actual']
 
 # Output file path
-output_file = 'isa_result/HARK_RV_FCST.csv'
+output_file = 'isa_result/HARK2QC_RV_FCST.csv'
 pd.DataFrame(columns=columns).to_csv(output_file, index=False)
 
-y = HARK(b0, b1, b2, b3, q, r)
-# y.construct_z(len(log_rv))
+y = HARK2(b0, b1, b2, b3, q, r, h)
+y.construct_z(len(log_rv))
 y.construct_kf()
 y.initialise_a(mean=np.mean(log_rv))
 y.initialise_p(var_iv=np.var(log_rv))
-
 
 for i in range(len(log_rv)):
     a_pred, p_pred = y.predict()
