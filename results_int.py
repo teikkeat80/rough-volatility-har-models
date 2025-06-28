@@ -13,21 +13,21 @@ from data_processing import load_rv_one, load_rv
 
 indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
 # indices = ["SPX"]
-# idx = indices[0]
+idx = indices[3]
 # for idx in indices:
-log_rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV'))
-    # log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
-rq = (2 / 78) * np.array(load_rv('data/SP500_RQ_5min.csv', 'RQ')) / np.exp(log_rv) ** 2
+# log_rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV'))
+log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
+# rq = (2 / 78) * np.array(load_rv('data/SP500_RQ_5min.csv', 'RQ')) / np.exp(log_rv) ** 2
 
 # timeframe = 500
 
 # for ix in indices:
-# with open(f'estm_result/HARK_SPX_EST.pickle', 'rb') as file:
-#     result = pickle.load(file)
-# print("-------------------------")
-# print(result)
-# np.set_printoptions(suppress=True)
-# print('Estimated Params: ', np.round(result.x, 4))
+with open(f'estm_result/HARK2QC_{idx}_EST.pickle', 'rb') as file:
+    result = pickle.load(file)
+print("-------------------------")
+print(result)
+np.set_printoptions(suppress=True)
+print('Estimated Params: ', np.round(result.x, 4))
 # print('LL: ', np.round(- result.fun, 4))
 # print('AIC: ', np.round(2 * len(result.x) - 2 * (- result.fun), 4))
 

@@ -136,12 +136,19 @@ def load_rv_one(path, select):
     return rv_select
 
 
-indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
+# indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
 # indices = ["SPX"]
-idx = indices[4]
-log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
+# idx = indices[4]
+# log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
 # for idx in indices:
-# log_rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV'))
+rv = load_rv('data/SNP500_RV_5min.csv', 'RV')
+
+log_rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV'))[1500:2500]
+
+# plt.figure(figsize=(10, 6))
+# plt.plot(rv)
+# plt.show()
+# print("load")
     # log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
 # rq = (2 / 78) * (np.array(load_rv('data/SP500_RQ_5min.csv', 'RQ')) / np.exp(log_rv) ** 2)
 
@@ -238,11 +245,11 @@ result = minimize(
     initial_params,
     args=(log_rv),
     method='Nelder-Mead',
-    options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 6000}  ## NM['xatol': 1e-6, 'fatol': 1e-3] | BGFS['eps': 1e-3, 'xrtol': 1e-3]
+    options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 2000}  ## NM['xatol': 1e-6, 'fatol': 1e-3] | BGFS['eps': 1e-3, 'xrtol': 1e-3]
 )
 end_time = time()
 
-with open(f'estm_result/HARK2QC_{idx}_EST.pickle', 'wb') as file:
+with open(f'premestm_result/HARK2QC_RVLV_EST.pickle', 'wb') as file:
     pickle.dump(result, file)
 
 est_params = result.x

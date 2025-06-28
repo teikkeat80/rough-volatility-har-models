@@ -79,17 +79,17 @@ def log_likelihood_hark2(params, h, rv):
 # Load Data
 path = 'data/rv_dataset.csv'
 df = pd.read_csv(path)
-rv = df.iloc[:, 1:].to_dict(orient='list')['.SPX'][-1000:]
+rv = df.iloc[:, 1:].to_dict(orient='list')['.FTSE'][-1000:]
 log_rv = np.log(rv)
 
 # Get h
-with open('estm_result/HARK2QC_SPX_EST.pickle', 'rb') as file:
+with open('estm_result/HARK2QC_FTSE_EST.pickle', 'rb') as file:
     fe_result = pickle.load(file)
 h = fe_result.x[-1]
 print(h)
 
 # Output file path
-output_file = 'osa_result/HARK2QC_SPX_FCST.csv'
+output_file = 'osa_result/HARK2QC_FTSE_FCST.csv'
 columns = ['iteration', 'b0', 'b1', 'b2', 'b3', 'q', 'r', 'h', 'loglik', 'predicted', 'var', 'actual']
 
 # Determine where to resume from (if file already exists)
