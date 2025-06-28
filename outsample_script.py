@@ -77,19 +77,19 @@ def log_likelihood_hark2(params, h, rv):
     return -ll
 
 # Load Data
-rv_path = '/Users/teikkeattee/Workplace/UM_MSC_STATS/UM_STATS_Research_Project/Project_Placeholder/data/SNP500_RV_5min.csv'
-rv_df = pd.read_csv(rv_path).sort_values(by='Date', ignore_index=True)
-rv = rv_df['RV'].tolist()[-1500:]
+path = 'data/rv_dataset.csv'
+df = pd.read_csv(path)
+rv = df.iloc[:, 1:].to_dict(orient='list')['.SPX'][-1000:]
 log_rv = np.log(rv)
 
 # Get h
-with open('/Users/teikkeattee/Workplace/UM_MSC_STATS/UM_STATS_Research_Project/Project_Placeholder/estm_result/HARK2_RV_EST.pickle', 'rb') as file:
+with open('estm_result/HARK2QC_SPX_EST.pickle', 'rb') as file:
     fe_result = pickle.load(file)
 h = fe_result.x[-1]
 print(h)
 
 # Output file path
-output_file = '/Users/teikkeattee/Workplace/UM_MSC_STATS/UM_STATS_Research_Project/Project_Placeholder/osa_result/HARK2_RV_FCST.csv'
+output_file = 'osa_result/HARK2QC_SPX_FCST.csv'
 columns = ['iteration', 'b0', 'b1', 'b2', 'b3', 'q', 'r', 'h', 'loglik', 'predicted', 'var', 'actual']
 
 # Determine where to resume from (if file already exists)

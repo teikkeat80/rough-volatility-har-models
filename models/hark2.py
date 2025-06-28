@@ -138,12 +138,12 @@ def load_rv_one(path, select):
 
 indices = ["SPX", "GDAXI", "FCHI", "FTSE", "OMXSPI", "N225", "KS11", "HSI"]
 # indices = ["SPX"]
-# idx = indices[0]
-# log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
+idx = indices[4]
+log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
 # for idx in indices:
-log_rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV'))
+# log_rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV'))
     # log_rv = np.log(load_rv_one('data/rv_dataset.csv', f'.{idx}')) 
-rq = (2 / 78) * (np.array(load_rv('data/SP500_RQ_5min.csv', 'RQ')) / np.exp(log_rv) ** 2)
+# rq = (2 / 78) * (np.array(load_rv('data/SP500_RQ_5min.csv', 'RQ')) / np.exp(log_rv) ** 2)
 
 ############################
 #        SIMULATION        #
@@ -242,7 +242,7 @@ result = minimize(
 )
 end_time = time()
 
-with open(f'premestm_result/HARK2QC_RV_EST.pickle', 'wb') as file:
+with open(f'estm_result/HARK2QC_{idx}_EST.pickle', 'wb') as file:
     pickle.dump(result, file)
 
 est_params = result.x

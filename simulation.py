@@ -10,14 +10,14 @@ import numpy as np
 log_rv = np.log(load_rv('data/SNP500_RV_5min.csv', 'RV'))
 
 # Simulation
-np.random.seed(12)
-sim_b0 = -0.0008
+np.random.seed(123)
+sim_b0 = 0.01
 sim_b1 = 0.6
-sim_b2 = 0.23
-sim_b3 = 0.07
-sim_q = 0.36
-sim_r = 0.26
-sim_h = 0.4
+sim_b2 = 0.25
+sim_b3 = 0.1
+sim_q = 0.35
+sim_r = 0.25
+sim_h = 0.48
 sim_y = HARK2(sim_b0, sim_b1, sim_b2, sim_b3, sim_q, sim_r, sim_h)
 sim_y.construct_z(1000)
 _, sim_e, sim_liv, sim_lrv = sim_y.simulate(10000, np.mean(log_rv))
