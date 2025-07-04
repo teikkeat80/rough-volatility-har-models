@@ -61,7 +61,7 @@ class Hurst:
         y = h * x + c
 
         plt.figure(figsize=(10, 6))
-        plt.plot(self.q, zeta, 'r-', label=r'$\zeta_q\sim\theta_1$')
+        plt.plot(self.q, zeta, 'r-', label=r'$\zeta_q$')
         plt.plot(x, y, 'k-', label=fr'${round(h, 4)}q$')
         plt.xlabel(r'$q$')
         plt.ylabel(r'$\zeta_q$')

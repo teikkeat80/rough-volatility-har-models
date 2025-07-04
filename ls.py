@@ -13,11 +13,16 @@ class Ols:
         params = rols.fit().params
         return params
     
-    def fols(self, nw=False, pr=False):
+    def fols(self, nw=False, pr=False, r2=False):
         fols = sm.OLS(self.dep, self.indep)
         params = fols.fit().params.T
+        if nw:
+            mod = fols.fit(cov_type='HAC', cov_kwds={'maxlags': 20})
+        else:
+            mod = fols.fit()
         if pr:
-            print(fols.fit(cov_type='HAC', cov_kwds={'maxlags': 20}).summary() if nw else fols.fit().summary())
+            print(mod.summary())
+            print(f'R squared: {mod.rsquared}')
         return params
 
     def rol_predict(self):
@@ -49,31 +54,3 @@ class Ols:
             res_vari = np.sum(resi ** 2) / (window - 4)
             res_var.append(res_vari)
         return np.array(res_var)
-    
-# def load_rv_all(path):
-#     df_raw = pd.read_csv(path)
-#     rv_all = df_raw.iloc[:, 1:].to_dict(orient='list')
-#     return rv_all
-
-# def load_rv_one(path, select):
-#     rv_all = load_rv_all(path)
-#     rv_select = rv_all[select]
-#     return rv_select
-
-# rv = load_rv_one('data/rv_dataset.csv', '.SPX')
-# har = Har(rv=rv, beg_index=30 * 22 + 21)
-# har_y = har.y
-# har_x_d = har.xd
-# har_x_w = har.xw
-# har_x_m = har.xm
-# har_indep = np.array([har_x_d, har_x_w, har_x_m]).T
-
-# ols = Ols(har_y, har_indep, 1001)
-# ols.fols_summary()
-# print(ols.params.shape)
-# print(ols.indep.shape)
-# pred = ols.predict()
-# print(pred.shape)
-# predicted = pred[1900:]
-# actual = har_y[1900:]
-# print(f"rmse: {np.sqrt(np.mean((np.array(actual) - np.array(predicted)) ** 2))}")

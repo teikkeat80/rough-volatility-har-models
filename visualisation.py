@@ -30,11 +30,11 @@ def plot_superimpose_series(array, label):
     plt.legend()
     plt.show()
 
-def plot_acorr(array, ylim):
+def plot_acorr(array):
     plt.figure(figsize=(10, 6))
     plt.acorr(array, usevlines=False, maxlags=100, linestyle='-', marker=' ')
     plt.xlim([0, 100])
-    plt.ylim([ylim, 1])
+    plt.ylim([0, 1])
     plt.xlabel('lag')
     plt.ylabel('$ACF$')
     plt.show()
@@ -56,29 +56,3 @@ def plot_forecast(df, model):
     plt.legend()
     plt.grid(True)
     plt.show()
-
-def plot_forecast_returns(df, model):
-    returns = np.array(df[model]) * np.random.normal(0, 1, len(df[model]))
-    plt.figure(figsize=(10, 6))
-    plt.plot(df.index, returns, label=model)
-    plt.title(f'Forecast Plot of Returns Based on {model}')
-    plt.xlabel('Date')
-    plt.ylabel('Values')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-
-def plot_3d(x, y, z):
-    plt.figure().add_subplot(projection='3d').scatter(x, y, z)
-    plt.show()
-
-def plot_all_rv(dict):
-    for key, val in dict.items():
-        plt.figure(figsize=(10, 6))
-        plt.plot(val, label=key)
-        plt.xlabel('Date')
-        plt.ylabel('Values')
-        plt.legend()
-        plt.grid(True)
-        plt.show()
-        plt.pause(0.001)
