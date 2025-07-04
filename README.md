@@ -13,7 +13,7 @@ dynamics of financial volatility more comprehensively.
 
 Keywords: realised volatility, heterogeneous autoregressive, rough volatility, Kalman filter, fractional Brownian motion.
 
-## DESCRIPTION
+## REPOSITORY DESCRIPTION
 - folders:
   - data: source data described in Section 3.3.1 and Section 4.4.1
   - isa_result: Results for Section 4.4.2
