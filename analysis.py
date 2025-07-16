@@ -206,6 +206,8 @@ def p1_empirical_analysis():
         vis.plot_comparison(actual, rhar_predicted)
         vis.plot_comparison(actual, har_predicted)
         vis.plot_comparison(actual, roughvol_predicted)
+        vis.plot_comparison(actual, lrhar_predicted)
+        vis.plot_comparison(actual, lhar_predicted)
 
 def p2_simulation_analysis():
 
