@@ -7,11 +7,11 @@ def main():
     analysis.p1_empirical_analysis()
     
     # Simulation study for Chapter 4
-    # analysis.p2_simulation_analysis()
+    analysis.p2_simulation_analysis()
 
-    # # Empirical analysis for Chapter 4
-    # analysis.p2_empirical_analysis()
-    # analysis.p2_empirical_analysis_extended()
+    # Empirical analysis for Chapter 4
+    analysis.p2_empirical_analysis()
+    analysis.p2_empirical_analysis_extended()
 
     return 0
 
