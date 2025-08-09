@@ -3,6 +3,7 @@ from hark import HARK, log_likelihood_hark, log_likelihood_harkred
 import numpy as np
 from rhark import RHARK, log_likelihood_rhark
 from scipy.optimize import minimize
+import os
 
 
 def full_pred_hark(params, log_rv, onv, filename):
@@ -290,11 +291,22 @@ def rolling_pred_rhark(log_rv, h, filename, window, eval):
     # Output file path
     output_file = f'osa_result/{filename}.csv'
     columns = ['iteration', 'b0', 'b1', 'b2', 'b3', 'q', 'h', 'loglik', 'predicted', 'var', 'actual'] # back - add r
-    pd.DataFrame(columns=columns).to_csv(output_file, index=False)
+    
+    # MODIFIED LINES
+    if os.path.exists(output_file):
+        existing_df = pd.read_csv(output_file)
+        start_iter = existing_df['iteration'].max() + 1
+    else:
+        start_iter = 0
+        # Write header if file doesn't exist
+        pd.DataFrame(columns=columns).to_csv(output_file, index=False)
+    # MODIFIED LINES
+    
+    # pd.DataFrame(columns=columns).to_csv(output_file, index=False)
 
     initial_params = [0.001, 0.5, 0.5, 0.5, 0.1]
 
-    for i in range(0, len(log_rv) - window):
+    for i in range(start_iter, len(log_rv) - window):
 
         try:
             # Select window
