@@ -77,9 +77,9 @@ class RHARK:
             ivfilt.append(iv.item())       
         return state, zfilt, ivfilt, obs
 
-def log_likelihood_rhark(params, rv):
-    b0, b1, b2, b3, q, r, h = params
-    x = RHARK(b0, b1, b2, b3, q, r, h)
+def log_likelihood_rhark(params, h, rv):
+    b0, b1, b2, b3, q = params
+    x = RHARK(b0, b1, b2, b3, q, 0, h)
     x.construct_z(len(rv))
     x.construct_kf()
     x.initialise_a(np.mean(rv))
@@ -93,3 +93,20 @@ def log_likelihood_rhark(params, rv):
 
     ll = - ((22 + x.j) / 2) * len(rv) * math.log(2 * math.pi) - (1 / 2) * sum_ll
     return -ll
+
+# def log_likelihood_rhark(params, rv):
+#     b0, b1, b2, b3, q, r, h = params
+#     x = RHARK(b0, b1, b2, b3, q, r, h)
+#     x.construct_z(len(rv))
+#     x.construct_kf()
+#     x.initialise_a(np.mean(rv))
+#     x.initialise_p(var_iv=np.var(rv), var_z=0.001)
+#     sum_ll = 0
+
+#     for t in range(len(rv)):
+#         x.predict()
+#         v, f, _, _ = x.update(rv[t])
+#         sum_ll += math.log(abs(f)) + v.T @ np.linalg.inv(f) @ v
+
+#     ll = - ((22 + x.j) / 2) * len(rv) * math.log(2 * math.pi) - (1 / 2) * sum_ll
+#     return -ll

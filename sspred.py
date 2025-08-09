@@ -85,13 +85,13 @@ def full_pred_harkred(params, log_rv, filename):
 
 def full_pred_rhark(params, log_rv, filename):
 
-    b0, b1, b2, b3, q, r, h = params
+    b0, b1, b2, b3, q, h = params # back - add r
     columns = ['iteration', 'predicted', 'var', 'actual']
 
     output_file = f'isa_result/{filename}.csv'
     pd.DataFrame(columns=columns).to_csv(output_file, index=False)
 
-    y = RHARK(b0, b1, b2, b3, q, r, h)
+    y = RHARK(b0, b1, b2, b3, q, 0, h)
     y.construct_z(len(log_rv))
     y.construct_kf()
     y.initialise_a(mean=np.mean(log_rv))
@@ -118,7 +118,7 @@ def full_pred_rhark(params, log_rv, filename):
     predicted = df['predicted'].values
     actual = df['actual'].values
 
-    rvpredicted = np.exp(predicted + ((variance + r ** 2) / 2))
+    rvpredicted = np.exp(predicted + ((variance + 0 ** 2) / 2))
     rvactual = np.exp(actual)
 
     return rvpredicted, rvactual
@@ -289,10 +289,10 @@ def rolling_pred_rhark(log_rv, h, filename, window, eval):
 
     # Output file path
     output_file = f'osa_result/{filename}.csv'
-    columns = ['iteration', 'b0', 'b1', 'b2', 'b3', 'q', 'r', 'loglik', 'predicted', 'var', 'actual']
+    columns = ['iteration', 'b0', 'b1', 'b2', 'b3', 'q', 'h', 'loglik', 'predicted', 'var', 'actual'] # back - add r
     pd.DataFrame(columns=columns).to_csv(output_file, index=False)
 
-    initial_params = [0.001, 0.5, 0.5, 0.5, 0.1, 0.1]
+    initial_params = [0.001, 0.5, 0.5, 0.5, 0.1]
 
     for i in range(0, len(log_rv) - window):
 
@@ -312,10 +312,10 @@ def rolling_pred_rhark(log_rv, h, filename, window, eval):
             # Record Estimation Result
             est_params = result.x
             loglik = - result.fun
-            b0, b1, b2, b3, q, r = est_params
+            b0, b1, b2, b3, q = est_params # back add r
 
             # Initialise Filter
-            y = RHARK(b0, b1, b2, b3, q, r, h)
+            y = RHARK(b0, b1, b2, b3, q, 0, h) # back add r
             y.construct_z(len(series))
             y.construct_kf()
             y.initialise_a(mean=np.mean(series))
@@ -340,7 +340,7 @@ def rolling_pred_rhark(log_rv, h, filename, window, eval):
                 'b2': b2,
                 'b3': b3,
                 'q': q,
-                'r': r,
+                # 'r': r,
                 'h': h,
                 'loglik': loglik,
                 'predicted': predicted,
@@ -357,7 +357,8 @@ def rolling_pred_rhark(log_rv, h, filename, window, eval):
 
     df = pd.read_csv(f'{filename}.csv').iloc[-eval:]
     variance = np.array(df['var'].values)
-    rsq = np.array(df['r'].values) ** 2
+    # rsq = np.array(df['r'].values) ** 2
+    rsq = 0
     predicted = df['predicted'].values
     actual = df['actual'].values
 
