@@ -77,8 +77,8 @@ class RHARK:
             ivfilt.append(iv.item())       
         return state, zfilt, ivfilt, obs
 
-def log_likelihood_rhark(params, h, rv):
-    b0, b1, b2, b3, q = params
+def log_likelihood_rhark(params, rv):
+    b0, b1, b2, b3, q, h = params
     x = RHARK(b0, b1, b2, b3, q, 0, h)
     x.construct_z(len(rv))
     x.construct_kf()

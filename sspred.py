@@ -114,7 +114,7 @@ def full_pred_rhark(params, log_rv, filename):
 
         row.to_csv(output_file, mode='a', index=False, header=False)
     
-    df = pd.read_csv(f'{filename}.csv')
+    df = pd.read_csv(f'isa_result/{filename}.csv')
     variance = np.array(df['var'].values)
     predicted = df['predicted'].values
     actual = df['actual'].values
@@ -292,82 +292,82 @@ def rolling_pred_rhark(log_rv, h, filename, window, eval):
     output_file = f'osa_result/{filename}.csv'
     columns = ['iteration', 'b0', 'b1', 'b2', 'b3', 'q', 'h', 'loglik', 'predicted', 'var', 'actual'] # back - add r
     
-    # MODIFIED LINES
-    if os.path.exists(output_file):
-        existing_df = pd.read_csv(output_file)
-        start_iter = existing_df['iteration'].max() + 1
-    else:
-        start_iter = 0
-        # Write header if file doesn't exist
-        pd.DataFrame(columns=columns).to_csv(output_file, index=False)
-    # MODIFIED LINES
+    # # MODIFIED LINES
+    # if os.path.exists(output_file):
+    #     existing_df = pd.read_csv(output_file)
+    #     start_iter = existing_df['iteration'].max() + 1
+    # else:
+    #     start_iter = 0
+    #     # Write header if file doesn't exist
+    #     pd.DataFrame(columns=columns).to_csv(output_file, index=False)
+    # # MODIFIED LINES
     
-    # pd.DataFrame(columns=columns).to_csv(output_file, index=False)
+    # # pd.DataFrame(columns=columns).to_csv(output_file, index=False)
 
-    initial_params = [0.001, 0.5, 0.5, 0.5, 0.1]
+    # initial_params = [0.001, 0.5, 0.5, 0.5, 0.1]
 
-    for i in range(start_iter, len(log_rv) - window):
+    # for i in range(start_iter, len(log_rv) - window):
 
-        try:
-            # Select window
-            series = log_rv[i: window + i]
+    #     try:
+    #         # Select window
+    #         series = log_rv[i: window + i]
 
-            # Estimation
-            result = minimize(
-                log_likelihood_rhark,
-                initial_params,
-                args=(h, series),
-                method='Nelder-Mead',
-                options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 4000}
-            )
+    #         # Estimation
+    #         result = minimize(
+    #             log_likelihood_rhark,
+    #             initial_params,
+    #             args=(h, series),
+    #             method='Nelder-Mead',
+    #             options={'xatol': 1e-6, 'fatol': 1e-2, 'maxfev': 4000}
+    #         )
 
-            # Record Estimation Result
-            est_params = result.x
-            loglik = - result.fun
-            b0, b1, b2, b3, q = est_params # back add r
+    #         # Record Estimation Result
+    #         est_params = result.x
+    #         loglik = - result.fun
+    #         b0, b1, b2, b3, q = est_params # back add r
 
-            # Initialise Filter
-            y = RHARK(b0, b1, b2, b3, q, 0, h) # back add r
-            y.construct_z(len(series))
-            y.construct_kf()
-            y.initialise_a(mean=np.mean(series))
-            y.initialise_p(var_iv=np.var(series), var_z=0.001)
+    #         # Initialise Filter
+    #         y = RHARK(b0, b1, b2, b3, q, 0, h) # back add r
+    #         y.construct_z(len(series))
+    #         y.construct_kf()
+    #         y.initialise_a(mean=np.mean(series))
+    #         y.initialise_p(var_iv=np.var(series), var_z=0.001)
 
-            # Run filter
-            for l in range(len(series)):
-                y.predict()
-                y.update(series[l])
+    #         # Run filter
+    #         for l in range(len(series)):
+    #             y.predict()
+    #             y.update(series[l])
 
-            # Generate prediction and record actual
-            a_pred, p_pred = y.predict()
-            predicted = (y.m @ a_pred).item()
-            var = (y.m @ p_pred @ y.m.T).item()
-            actual = log_rv[window + i]
+    #         # Generate prediction and record actual
+    #         a_pred, p_pred = y.predict()
+    #         predicted = (y.m @ a_pred).item()
+    #         var = (y.m @ p_pred @ y.m.T).item()
+    #         actual = log_rv[window + i]
 
-            # Combine into rows
-            row = pd.DataFrame([{
-                'iteration': i,
-                'b0': b0,
-                'b1': b1,
-                'b2': b2,
-                'b3': b3,
-                'q': q,
-                # 'r': r,
-                'h': h,
-                'loglik': loglik,
-                'predicted': predicted,
-                'var': var,
-                'actual': actual
-            }])
+    #         # Combine into rows
+    #         row = pd.DataFrame([{
+    #             'iteration': i,
+    #             'b0': b0,
+    #             'b1': b1,
+    #             'b2': b2,
+    #             'b3': b3,
+    #             'q': q,
+    #             # 'r': r,
+    #             'h': h,
+    #             'loglik': loglik,
+    #             'predicted': predicted,
+    #             'var': var,
+    #             'actual': actual
+    #         }])
 
-            # Append to csv
-            row.to_csv(output_file, mode='a', index=False, header=False)
+    #         # Append to csv
+    #         row.to_csv(output_file, mode='a', index=False, header=False)
         
-        except Exception as e:
-            print(f'Error at iteration{i}: {e}')
-            continue
+    #     except Exception as e:
+    #         print(f'Error at iteration{i}: {e}')
+    #         continue
 
-    df = pd.read_csv(f'{filename}.csv').iloc[-eval:]
+    df = pd.read_csv(f'osa_result/{filename}.csv').iloc[-eval:]
     variance = np.array(df['var'].values)
     # rsq = np.array(df['r'].values) ** 2
     rsq = 0

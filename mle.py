@@ -83,15 +83,15 @@ def mle_rhark(log_rv, filename):
         result = pickle.load(file)
     
     est_params = result.x
-    # ll = - result.fun
-    # aic = (2 * len(init_params)) - (2 * ll)
-    # se = nmse(log_likelihood_rhark, filename, log_rv=log_rv)
+    ll = - result.fun
+    aic = (2 * len(init_params)) - (2 * ll)
+    se = nmse(log_likelihood_rhark, filename, log_rv=log_rv)
 
-    # np.set_printoptions(suppress=True)
-    # print(result)
-    # print('Estimated Params: ', est_params, 4)
-    # print('LL: ', ll)
-    # print('AIC: ', aic)
-    # print('SE: ', se)
+    np.set_printoptions(suppress=True)
+    print(result)
+    print('Estimated Params: ', est_params)
+    print('LL: ', ll)
+    print('AIC: ', aic)
+    print('SE: ', se)
 
     return est_params

@@ -44,6 +44,7 @@ def nelder_mead_se(function, filename, **kwargs):
 
     info_mat = q_inv.T @ b_mat @ q_inv
     cv_mat = q_mat @ b_inv @ q_mat.T
+    print(b_mat)
     se = np.sqrt(np.abs(np.diag(cv_mat)))
 
     return se

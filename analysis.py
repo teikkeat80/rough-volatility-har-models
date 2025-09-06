@@ -310,11 +310,11 @@ def p2_empirical_analysis():
     rhark_params = mle_rhark(log_rv, 'RHARK_RV_EST_2')
 
     # RHARK ISP
-    # rhark_ispp, rhark_ispa = full_pred_rhark(rhark_params, log_rv, 'RHARK_RV_FCST_2')
-    # rmserhark = rmse(rhark_ispa, rhark_ispp)
-    # print(f'RHARK In-sample rmse: {rmserhark}')
-    # qlikerhark = qlike(rhark_ispa, rhark_ispp)
-    # print(f'RHARK In-sample qlike: {qlikerhark}')
+    rhark_ispp, rhark_ispa = full_pred_rhark(rhark_params, log_rv, 'RHARK_RV_FCST_2')
+    rmserhark = rmse(rhark_ispa, rhark_ispp)
+    print(f'RHARK In-sample rmse: {rmserhark}')
+    qlikerhark = qlike(rhark_ispa, rhark_ispp)
+    print(f'RHARK In-sample qlike: {qlikerhark}')
 
     # RHARK OSF
     rhark_h = rhark_params[-1]
