@@ -268,7 +268,7 @@ def p2_empirical_analysis():
     rq = load_spxfuturesrq()
     onv = (2 / 78) * (np.array(rq) / np.exp(log_rv) ** 2)
 
-    eval_start = 28032222   # 2400
+    eval_start = 28032   # 2400
     eval_end   = 3596   # 2800
 
     # HARK EST
