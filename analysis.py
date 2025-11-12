@@ -268,24 +268,33 @@ def p2_empirical_analysis():
     rq = load_spxfuturesrq()
     onv = (2 / 78) * (np.array(rq) / np.exp(log_rv) ** 2)
 
-    # # HARK EST
+    eval_start = 2803   # 2400
+    eval_end   = 3596   # 2800
+
+    # HARK EST
     # hark_params = mle_hark(log_rv, onv, 'HARK_RV_EST')
 
-    # # HARK ISP
+    # HARK ISP
     # hark_ispp, hark_ispa = full_pred_hark(hark_params, log_rv, onv, 'HARK_RV_FCST')
     # rmsehark = rmse(hark_ispa, hark_ispp)
     # print(f'HARK In-sample rmse: {rmsehark}')
     # qlikehark = qlike(hark_ispa, hark_ispp)
     # print(f'HARK In-sample qlike: {qlikehark}')
 
-    # # HARK OSF
-    # hark_osfp, hark_osfa = rolling_pred_hark(log_rv, onv, 'HARK_RV_FCST', 500, 1000)
-    # rmsehark = rmse(hark_osfa, hark_osfp)
-    # print(f'HARK Out-sample rmse: {rmsehark}')
-    # qlikehark = qlike(hark_osfa, hark_osfp)
-    # print(f'HARK Out-sample qlike: {qlikehark}') 
-    # maehark = mae(hark_osfa, hark_osfp)
-    # print(f'HARK Out-sample mae: {maehark}')
+    # HARK OSF
+    hark_osfp, hark_osfa, hark_var = rolling_pred_hark(log_rv, onv, 'HARK_RVFULL_FCST', 500, eval_start, eval_end, False, False)
+    rmsehark = rmse(hark_osfa, hark_osfp)
+    print(f'HARK Out-sample rmse: {rmsehark}')
+    qlikehark = qlike(hark_osfa, hark_osfp)
+    print(f'HARK Out-sample qlike: {qlikehark}') 
+    maehark = mae(hark_osfa, hark_osfp)
+    print(f'HARK Out-sample mae: {maehark}')
+    ratiophark = ratio_p(hark_osfa, hark_osfp)
+    print(f'HARK Out-sample ratiop: {ratiophark}')
+    hmsehark = hmse(hark_osfa, hark_osfp)
+    print(f'HARK Out-sample hmse: {hmsehark}')
+    print('---------------------------------------')
+    
 
     # # HARKRED EST
     # harkred_params = mle_harkred(log_rv, 'HARKRED_RV_EST')
@@ -306,29 +315,69 @@ def p2_empirical_analysis():
     # maeharkred = mae(harkred_osfa, harkred_osfp)
     # print(f'HARKRED Out-sample mae: {maeharkred}')
 
-    # RHARK EST
-    rhark_params = mle_rhark(log_rv, 'RHARK_RV_EST_2')
+    # # RHARK EST
+    # rhark_params = mle_rhark(log_rv, 'RHARK_RV_EST_TEST')
 
-    # RHARK ISP
-    rhark_ispp, rhark_ispa = full_pred_rhark(rhark_params, log_rv, 'RHARK_RV_FCST_2')
-    rmserhark = rmse(rhark_ispa, rhark_ispp)
-    print(f'RHARK In-sample rmse: {rmserhark}')
-    qlikerhark = qlike(rhark_ispa, rhark_ispp)
-    print(f'RHARK In-sample qlike: {qlikerhark}')
+    # # RHARK ISP
+    # rhark_ispp, rhark_ispa = full_pred_rhark(rhark_params, log_rv, 'RHARK_RV_FCST_TEST')
+    # rmserhark = rmse(rhark_ispa, rhark_ispp)
+    # print(f'RHARK In-sample rmse: {rmserhark}')
+    # qlikerhark = qlike(rhark_ispa, rhark_ispp)
+    # print(f'RHARK In-sample qlike: {qlikerhark}')
 
-    # RHARK OSF
-    rhark_h = rhark_params[-1]
-    rhark_osfp, rhark_osfa = rolling_pred_rhark(log_rv, rhark_h, 'RHARK_RV_FCST_2', 500, 1000)
-    rmserhark = rmse(rhark_osfa, rhark_osfp)
-    print(f'RHARK Out-sample rmse: {rmserhark}')
-    qlikerhark = qlike(rhark_osfa, rhark_osfp)
-    print(f'RHARK Out-sample qlike: {qlikerhark}') 
-    maerhark = mae(rhark_osfa, rhark_osfp)
-    print(f'RHARK Out-sample mae: {maerhark}')
+    # # RHARK OSF
+    # rhark_h = rhark_params[-1]
+    # rhark_osfp, rhark_osfa = rolling_pred_rhark(log_rv, rhark_h, 'RHARK_RV_FCST_TEST', 500, 1000)
+    # rmserhark = rmse(rhark_osfa, rhark_osfp)
+    # print(f'RHARK Out-sample rmse: {rmserhark}')
+    # qlikerhark = qlike(rhark_osfa, rhark_osfp)
+    # print(f'RHARK Out-sample qlike: {qlikerhark}') 
+    # maerhark = mae(rhark_osfa, rhark_osfp)
+    # print(f'RHARK Out-sample mae: {maerhark}')
 
+    # RHARKQ EST
+    # rharkq_params = mle_rharkq(log_rv, onv, 'RHARKQ_RV_EST')
+
+    # # RHARKQ ISP
+    # rharkq_ispp, rharkq_ispa = full_pred_rharkq(rharkq_params, log_rv, onv, 'RHARKQ_RV_FCST')
+    # rmserharkq = rmse(rharkq_ispa, rharkq_ispp)
+    # print(f'RHARKQ In-sample rmse: {rmserharkq}')
+    # qlikerharkq = qlike(rharkq_ispa, rharkq_ispp)
+    # print(f'RHARKQ In-sample qlike: {qlikerharkq}')
+
+    # RHARKQ OSF
+    # rharkq_h = rharkq_params[-1]
+    rharkq_osfp, rharkq_osfa,rharkq_var = rolling_pred_rharkq(log_rv, onv, 'RHARKQ_RVFULL_FCST', 500, eval_start, eval_end, False, False)
+    rmserharkq = rmse(rharkq_osfa, rharkq_osfp)
+    print(f'RHARKQ Out-sample rmse: {rmserharkq}')
+    qlikerharkq = qlike(rharkq_osfa, rharkq_osfp)
+    print(f'RHARKQ Out-sample qlike: {qlikerharkq}')
+    maerharkq = mae(rharkq_osfa, rharkq_osfp)
+    print(f'RHARKQ Out-sample mae: {maerharkq}')
+    ratioprharkq = ratio_p(rharkq_osfa, rharkq_osfp)
+    print(f'RHARKQ Out-sample ratiop: {ratioprharkq}')
+    hmserharkq = hmse(rharkq_osfa, rharkq_osfp)
+    print(f'RHARKQ Out-sample hmse: {hmserharkq}')
+    print('---------------------------------------')
+
+    diff_pred, diff_bm, win_pred, win_bm, min_diffs, max_diffs, winners = wlfreq(rharkq_osfp, hark_osfp, hark_osfa)
+    print(f'RHARKQ wlfreq score: {win_pred}')
+    print(f'HARK wlfreq  score: {win_bm}')
+    # vis.plot_series(winners, 'model')
+    # vis.plot_series(min_diffs, 'min_diff')
+    # vis.plot_series(max_diffs, 'max_diff')
+    # vis.plot_kd(diff_pred)
+    # vis.plot_kd(diff_bm)
+
+    # mcs_result = mcs(rharkq_osfp, hark_osfp, hark_osfa)
+    # print(mcs_result)
+
+    # vis.plot_comparison_2(hark_var, rharkq_var, 'hark', 'rharkq')
+    vis.plot_comparison_3(hark_osfp, rharkq_osfp, hark_osfa, 'hark', 'rharkq', 'actual')
     # vis.plot_comparison(hark_osfa, hark_osfp)
     # vis.plot_comparison(harkred_osfa, harkred_osfp)
-    vis.plot_comparison(rhark_osfa, rhark_osfp)
+    # vis.plot_comparison(rhark_osfa, rhark_osfp)
+    # vis.plot_comparison(rharkq_osfa, rharkq_osfp)
 
 def p2_empirical_analysis_extended():
 

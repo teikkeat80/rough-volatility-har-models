@@ -15,6 +15,23 @@ def plot_comparison(actual, predicted):
     plt.legend()
     plt.show()
 
+def plot_comparison_2(first, second, first_label, second_label):
+    plt.figure(figsize=(10, 6))
+    plt.plot(np.arange(len(first)), first, 'b-', label=first_label)
+    plt.plot(np.arange(len(second)), second, 'r-', label=second_label)
+    plt.xlabel('Time')
+    plt.legend()
+    plt.show()
+
+def plot_comparison_3(first, second, third, first_label, second_label, third_label):
+    plt.figure(figsize=(10, 6))
+    plt.plot(np.arange(len(first)), first, 'b-', label=first_label)
+    plt.plot(np.arange(len(second)), second, 'r-', label=second_label)
+    plt.plot(np.arange(len(third)), third, 'k-', label=third_label)
+    plt.xlabel('Time')
+    plt.legend()
+    plt.show()
+
 def plot_series(array, ylab):
     plt.figure(figsize=(10, 6))
     plt.plot(np.arange(len(array)), array, 'k-')
